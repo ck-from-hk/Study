@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>單行紙、方格紙、繪圖紙及五線譜 PDF 生成器</title>
+<title>香港常用紙張及樂譜 PDF 生成器</title>
 <style>
   :root {
     --bg: #f1f5f9;
@@ -31,6 +31,7 @@
   .app {
     display: flex;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
   }
@@ -187,7 +188,7 @@
     gap: 6px;
   }
 
-  input[type="number"], select {
+  input[type="number"], input[type="text"], select {
     width: 100%;
     padding: 6px 8px;
     border: 1px solid var(--border);
@@ -198,11 +199,40 @@
   }
 
   input[type="number"]:disabled,
+  input[type="text"]:disabled,
   select:disabled,
   input[type="color"]:disabled {
     background: #f1f5f9;
     color: #94a3b8;
     cursor: not-allowed;
+  }
+
+  .sub-panel {
+    margin-top: 8px;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mini-btn {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #475569;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 11px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mini-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: #eff6ff;
   }
 
   .slider-combo {
@@ -349,10 +379,11 @@
     border-radius: 6px;
     padding: 6px 8px;
     line-height: 1.45;
+    margin-top: 6px;
   }
 
   .sidebar-footer {
-    padding: 12px 18px;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--border);
     background: #f8fafc;
     display: flex;
@@ -408,13 +439,13 @@
   }
 
   .preview-toolbar {
-    padding: 9px 16px;
+    padding: 8px 14px;
     background: #e2e8f0;
     border-bottom: 1px solid #cbd5e1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-size: 13px;
     color: #334155;
     flex-wrap: wrap;
@@ -423,24 +454,32 @@
 
   #infoText { font-weight: 600; }
 
-  .zoom-controls {
+  .toolbar-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .zoom-controls, .page-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
   }
 
   .zoom-btn {
     border: 1px solid #94a3b8;
     background: #fff;
     border-radius: 4px;
-    padding: 3px 9px;
+    padding: 3px 8px;
     cursor: pointer;
     font-size: 12px;
     color: var(--text);
     touch-action: manipulation;
   }
 
-  .zoom-btn:hover { background: #f8fafc; }
+  .zoom-btn:hover:not(:disabled) { background: #f8fafc; }
+  .zoom-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .preview-scroll {
     flex: 1;
@@ -583,13 +622,20 @@
     .app {
       flex-direction: column-reverse;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
     .preview-pane {
-      height: 40vh;
-      min-height: 220px;
+      height: 38vh;
+      height: 38dvh;
+      min-height: 210px;
       flex: none;
       border-bottom: 2px solid #94a3b8;
+    }
+    .preview-toolbar {
+      padding: 6px 10px;
+      font-size: 12px;
+      gap: 6px;
     }
     .preview-scroll { padding: 12px; }
     .sidebar {
@@ -600,8 +646,10 @@
       min-height: 0;
       border-right: none;
     }
-    .sidebar-header { padding: 9px 14px; }
+    .sidebar-header { padding: 8px 14px; }
     .sidebar-header p { display: none; }
+    .sidebar-footer { padding: 9px 14px calc(9px + env(safe-area-inset-bottom, 0px)); }
+    .footer-hint { display: none; }
   }
 
   @media print {
@@ -641,7 +689,7 @@
 <div class="app">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <h1>單行紙、方格紙、繪圖紙及五線譜</h1>
+      <h1>香港常用紙張及樂譜 PDF 生成器</h1>
       <p>1:1 實物毫米比例 · 純離線向量 PDF 輸出</p>
     </div>
 
@@ -658,7 +706,9 @@
           <button type="button" class="preset-btn" onclick="applyPreset('musicPiano')">鋼琴大譜表 (高低音譜號)</button>
           <button type="button" class="preset-btn" onclick="applyPreset('mathGrid')">5mm 數學方格紙</button>
           <button type="button" class="preset-btn" onclick="applyPreset('chineseBox')">12mm 中文字田字格</button>
-          <button type="button" class="preset-btn" onclick="applyPreset('engFourLine')">英文四線練習紙</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('dseChinese')">模擬 DSE 中文作文紙 (800字)</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('hkEngTwoLine')">港式小學英文簿 (紅藍藍紅)</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('engFourLine')">英文四線三格練習紙</button>
           <button type="button" class="preset-btn" onclick="applyPreset('dotGrid')">5mm 點陣筆記紙</button>
         </div>
       </div>
@@ -671,8 +721,9 @@
           <button type="button" class="mode-tab" data-mode="grid" onclick="setMode('grid')">方格紙</button>
           <button type="button" class="mode-tab" data-mode="graph" onclick="setMode('graph')">繪圖紙</button>
           <button type="button" class="mode-tab" data-mode="music" onclick="setMode('music')">五線譜</button>
+          <button type="button" class="mode-tab" data-mode="dse" onclick="setMode('dse')">DSE作文紙</button>
           <button type="button" class="mode-tab" data-mode="practice" onclick="setMode('practice')">田/米字格</button>
-          <button type="button" class="mode-tab" data-mode="english" onclick="setMode('english')">英文四線</button>
+          <button type="button" class="mode-tab" data-mode="english" onclick="setMode('english')">英文簿紙</button>
           <button type="button" class="mode-tab" data-mode="dot" onclick="setMode('dot')">點陣紙</button>
         </div>
       </div>
@@ -816,7 +867,7 @@
           <div class="row">
             <div class="field" id="musicInnerGapField">
               <label for="musicInnerGap">大譜表內距 (mm)</label>
-              <input type="number" id="musicInnerGap" value="10" min="4" max="25" step="0.5" oninput="update()" onchange="update()">
+              <input type="number" id="musicInnerGap" value="10" min="4" max="25" step="0.5" oninput="update()" onchange="clampAndUpdate(this, 4, 25, 10)">
             </div>
             <div class="field">
               <label for="musicClef">開頭譜號</label>
@@ -849,8 +900,70 @@
             <input type="checkbox" id="musicFinalBar" onchange="update()">
             最後一行結尾加上終止雙小節線
           </label>
+          <div class="graph-tip" id="musicClefTip">
+            高音／低音譜號及鋼琴花括號均以純向量貝茲曲線繪製，無論預覽或下載 PDF 均 100% 銳利。
+          </div>
+        </div>
+
+        <!-- 模擬 DSE 中文作文紙專屬 -->
+        <div id="opt-dse" class="hidden" style="display:none">
+          <div class="row">
+            <div class="field">
+              <label for="dseCols">每行字數</label>
+              <select id="dseCols" onchange="update()">
+                <option value="20" selected>20 字／行（標準 DSE）</option>
+                <option value="15">15 字／行（大格練習）</option>
+                <option value="25">25 字／行（緊湊版）</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dseRows">每頁行數</label>
+              <select id="dseRows" onchange="update()">
+                <option value="20" selected>20 行（400 字／頁）</option>
+                <option value="15">15 行（300 字／頁）</option>
+                <option value="18">18 行（360 字／頁）</option>
+                <option value="22">22 行（440 字／頁）</option>
+                <option value="0">自動填滿頁面</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="dseRowGap">行間距（批改／加字空隙）</label>
+              <div class="slider-combo">
+                <input type="range" id="dseRowGap" min="1.6" max="8.0" step="0.2" value="3.4" oninput="syncFromRange('dseRowGap')" onchange="syncFromRange('dseRowGap')">
+                <div class="stepper">
+                  <button type="button" class="step-btn" onclick="stepPair('dseRowGap', -0.2)">－</button>
+                  <input type="number" id="dseRowGapNum" min="1.6" max="12.0" step="0.2" value="3.4" oninput="syncFromNumber('dseRowGap')" onchange="syncFromNumber('dseRowGap', true)">
+                  <button type="button" class="step-btn" onclick="stepPair('dseRowGap', 0.2)">＋</button>
+                </div>
+                <span class="unit-tag">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="dseWordCount">右側字數標記</label>
+              <select id="dseWordCount" onchange="update()">
+                <option value="every100" selected>每百字標記（100、200、300、400…）</option>
+                <option value="everyRow">每行標記（20、40、60…）</option>
+                <option value="none">不顯示字數</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="checkbox-row" id="dseContinueRow">
+            <input type="checkbox" id="dseContinueCount" checked onchange="update()">
+            多頁跨頁累計字數（如第 2 頁續計 500–800 字）
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="dseMidMark" checked onchange="update()">
+            顯示每行中線加粗及外框（方便快速點算字數）
+          </label>
           <div class="graph-tip">
-            高音／低音譜號及鋼琴花括號均以純向量貝茲曲線繪製，無論預覽或下載 PDF 均 100% 銳利，零字型依賴。
+            模擬香港 DSE 中文科卷二寫作答題簿，20×20 格＝每頁 400 字；設定 2 頁即為 800 字（符合 DSE 650 字要求）。
           </div>
         </div>
 
@@ -881,42 +994,69 @@
             </div>
             <div class="field">
               <label for="practiceRowGap">行間距 (mm)</label>
-              <input type="number" id="practiceRowGap" value="3" min="0" max="15" step="0.5" oninput="update()" onchange="update()">
+              <input type="number" id="practiceRowGap" value="3" min="0" max="15" step="0.5" oninput="update()" onchange="clampAndUpdate(this, 0, 15, 3)">
             </div>
           </div>
         </div>
 
-        <!-- 英文四線格專屬 -->
+        <!-- 英文簿紙專屬（港式等距紅藍藍紅 / 標準四線） -->
         <div id="opt-english" class="hidden" style="display:none">
           <div class="row">
             <div class="field">
-              <label for="engUnit">單格高度</label>
+              <label for="engStyle">英文簿樣式</label>
+              <select id="engStyle" onchange="onEngStyleChanged()">
+                <option value="hkTwoLine" selected>港式小學英文簿（等距紅藍藍紅）</option>
+                <option value="fourLine">標準英文四線三格（含虛線及基準線）</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="engUnit" id="lbl-engUnit">等距線距（單格高度）</label>
               <div class="slider-combo">
-                <input type="range" id="engUnit" min="2.5" max="7" step="0.5" value="4" oninput="syncFromRange('engUnit')" onchange="syncFromRange('engUnit')">
+                <input type="range" id="engUnit" min="2.5" max="7" step="0.5" value="3.5" oninput="syncFromRange('engUnit')" onchange="syncFromRange('engUnit')">
                 <div class="stepper">
                   <button type="button" class="step-btn" onclick="stepPair('engUnit', -0.5)">－</button>
-                  <input type="number" id="engUnitNum" min="2" max="10" step="0.5" value="4" oninput="syncFromNumber('engUnit')" onchange="syncFromNumber('engUnit', true)">
+                  <input type="number" id="engUnitNum" min="2" max="10" step="0.5" value="3.5" oninput="syncFromNumber('engUnit')" onchange="syncFromNumber('engUnit', true)">
                   <button type="button" class="step-btn" onclick="stepPair('engUnit', 0.5)">＋</button>
                 </div>
                 <span class="unit-tag">mm</span>
               </div>
             </div>
           </div>
-          <div class="row">
+          <div class="row hidden" id="engGapRow" style="display:none">
             <div class="field">
-              <label for="engGap">組間距</label>
+              <label for="engGap" id="lbl-engGap">組間距</label>
               <div class="slider-combo">
-                <input type="range" id="engGap" min="2" max="14" step="0.5" value="6" oninput="syncFromRange('engGap')" onchange="syncFromRange('engGap')">
+                <input type="range" id="engGap" min="2" max="14" step="0.5" value="6.0" oninput="syncFromRange('engGap')" onchange="syncFromRange('engGap')">
                 <div class="stepper">
                   <button type="button" class="step-btn" onclick="stepPair('engGap', -0.5)">－</button>
-                  <input type="number" id="engGapNum" min="1" max="20" step="0.5" value="6" oninput="syncFromNumber('engGap')" onchange="syncFromNumber('engGap', true)">
+                  <input type="number" id="engGapNum" min="1" max="20" step="0.5" value="6.0" oninput="syncFromNumber('engGap')" onchange="syncFromNumber('engGap', true)">
                   <button type="button" class="step-btn" onclick="stepPair('engGap', 0.5)">＋</button>
                 </div>
                 <span class="unit-tag">mm</span>
               </div>
             </div>
           </div>
+          <div class="row" id="engHkRedRow">
+            <div class="field">
+              <label for="engHkRedMode">每三格分隔橫線（最頂最底）</label>
+              <select id="engHkRedMode" onchange="update()">
+                <option value="red" selected>預設保留紅線（紅藍藍紅）</option>
+                <option value="custom">改成其他顏色</option>
+                <option value="none">消失（只留雙藍線）</option>
+              </select>
+            </div>
+            <div class="field hidden" id="engHkRedColorField" style="flex: 0.36; display:none;">
+              <label for="engHkRedColor">橫線色</label>
+              <input type="color" id="engHkRedColor" value="#10b981" oninput="update()" onchange="update()">
+            </div>
+          </div>
           <label class="checkbox-row">
+            <input type="checkbox" id="engEdgeToEdge" checked onchange="update()">
+            橫線延伸至紙張左右邊緣（港式功課簿樣式）
+          </label>
+          <label class="checkbox-row hidden" id="engRedBaseRow" style="display:none">
             <input type="checkbox" id="engRedBase" checked onchange="update()">
             第三條基準線以紅色顯示（標準英文習字簿樣式）
           </label>
@@ -981,17 +1121,17 @@
           </div>
           <div class="field" style="flex: 0.52;">
             <label for="pageCount">頁數</label>
-            <input type="number" id="pageCount" value="1" min="1" max="20" oninput="update()" onchange="update()">
+            <input type="number" id="pageCount" value="1" min="1" max="20" oninput="update()" onchange="clampAndUpdate(this, 1, 20, 1, true)">
           </div>
         </div>
 
         <div class="field" style="margin-top: 8px;">
           <label>頁邊距 (mm)</label>
           <div class="grid-4">
-            <input type="number" id="marginTop" value="24" min="0" max="60" step="1" title="上邊距" oninput="update()" onchange="update()">
-            <input type="number" id="marginBottom" value="15" min="0" max="60" step="1" title="下邊距" oninput="update()" onchange="update()">
-            <input type="number" id="marginLeft" value="12" min="0" max="60" step="1" title="左邊距" oninput="update()" onchange="update()">
-            <input type="number" id="marginRight" value="12" min="0" max="60" step="1" title="右邊距" oninput="update()" onchange="update()">
+            <input type="number" id="marginTop" value="24" min="0" max="60" step="1" title="上邊距" oninput="update()" onchange="clampAndUpdate(this, 0, 60, 24)">
+            <input type="number" id="marginBottom" value="15" min="0" max="60" step="1" title="下邊距" oninput="update()" onchange="clampAndUpdate(this, 0, 60, 15)">
+            <input type="number" id="marginLeft" value="12" min="0" max="60" step="1" title="左邊距" oninput="update()" onchange="clampAndUpdate(this, 0, 60, 12)">
+            <input type="number" id="marginRight" value="12" min="0" max="60" step="1" title="右邊距" oninput="update()" onchange="clampAndUpdate(this, 0, 60, 12)">
           </div>
           <div class="margin-labels">
             <span>上</span><span>下</span><span>左</span><span>右</span>
@@ -1017,11 +1157,11 @@
           <div class="field">
             <label for="lineWidth">基準線條粗細</label>
             <div class="slider-combo">
-              <input type="range" id="lineWidth" min="0.1" max="0.8" step="0.05" value="0.25" oninput="syncFromRange('lineWidth')" onchange="syncFromRange('lineWidth')">
+              <input type="range" id="lineWidth" min="0.10" max="0.80" step="0.02" value="0.24" oninput="syncFromRange('lineWidth')" onchange="syncFromRange('lineWidth')">
               <div class="stepper">
-                <button type="button" class="step-btn" onclick="stepPair('lineWidth', -0.05)">－</button>
-                <input type="number" id="lineWidthNum" min="0.1" max="1.5" step="0.05" value="0.25" oninput="syncFromNumber('lineWidth')" onchange="syncFromNumber('lineWidth', true)">
-                <button type="button" class="step-btn" onclick="stepPair('lineWidth', 0.05)">＋</button>
+                <button type="button" class="step-btn" onclick="stepPair('lineWidth', -0.02)">－</button>
+                <input type="number" id="lineWidthNum" min="0.10" max="1.50" step="0.02" value="0.24" oninput="syncFromNumber('lineWidth')" onchange="syncFromNumber('lineWidth', true)">
+                <button type="button" class="step-btn" onclick="stepPair('lineWidth', 0.02)">＋</button>
               </div>
               <span class="unit-tag">mm</span>
             </div>
@@ -1057,10 +1197,10 @@
           </div>
           <div class="field" id="redPosField" style="flex: 0.78;">
             <label for="redLinePos">距左邊 (mm)</label>
-            <input type="number" id="redLinePos" value="28" min="8" max="80" step="1" oninput="update()" onchange="update()">
+            <input type="number" id="redLinePos" value="28" min="8" max="80" step="1" oninput="update()" onchange="clampAndUpdate(this, 8, 80, 28)">
           </div>
-          <div class="field" id="redColorField" style="flex: 0.38;">
-            <label for="redLineColor">顏色</label>
+          <div class="field" id="redColorField" style="flex: 0.42;">
+            <label for="redLineColor" id="lbl-redLineColor">顏色</label>
             <input type="color" id="redLineColor" value="#ef4444" oninput="update()" onchange="update()">
           </div>
         </div>
@@ -1078,7 +1218,66 @@
               <option value="studentZh">學生頁頭（姓名／班別／日期）</option>
               <option value="studentEn">學生頁頭（Name / Class / Date）</option>
               <option value="musicTitle">樂譜標題欄（曲名／作曲）</option>
+              <option value="dseHeader">模擬 DSE 作文頁頭（題號／姓名／班別）</option>
+              <option value="custom">自訂頁頭（自由輸入文字）</option>
             </select>
+          </div>
+        </div>
+
+        <!-- 頁頭左右位移微調 -->
+        <div class="row hidden" id="headerOffsetRow" style="display:none; margin-top: 8px;">
+          <div class="field">
+            <label for="headerOffsetX">
+              <span>頁頭左右移動（負左／正右）</span>
+              <button type="button" class="mini-btn" onclick="resetHeaderOffset()">歸零</button>
+            </label>
+            <div class="slider-combo">
+              <input type="range" id="headerOffsetX" min="-50" max="50" step="1" value="0" oninput="syncFromRange('headerOffsetX')" onchange="syncFromRange('headerOffsetX')">
+              <div class="stepper">
+                <button type="button" class="step-btn" onclick="stepPair('headerOffsetX', -1)">－</button>
+                <input type="number" id="headerOffsetXNum" min="-80" max="80" step="1" value="0" oninput="syncFromNumber('headerOffsetX')" onchange="syncFromNumber('headerOffsetX', true)">
+                <button type="button" class="step-btn" onclick="stepPair('headerOffsetX', 1)">＋</button>
+              </div>
+              <span class="unit-tag">mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 自訂頁頭設定面板 -->
+        <div class="sub-panel hidden" id="customHeaderOpts" style="display:none;">
+          <div class="field">
+            <label for="customHeaderTitle">主標題文字（可留空）</label>
+            <input type="text" id="customHeaderTitle" value="默書／練習紙" placeholder="例如：學校名稱　中文默書紙" oninput="update()" onchange="update()">
+          </div>
+          <div class="field">
+            <label for="customHeaderSub">副欄／填寫欄（可留空）</label>
+            <input type="text" id="customHeaderSub" value="姓名：____________　班別：______　日期：__________" placeholder="例如：姓名：______　日期：______" oninput="update()" onchange="update()">
+          </div>
+          <div class="row" style="margin-bottom: 0;">
+            <div class="field">
+              <label for="customHeaderAlign">對齊方式</label>
+              <select id="customHeaderAlign" onchange="update()">
+                <option value="left">靠左對齊</option>
+                <option value="center" selected>置中對齊</option>
+                <option value="right">靠右對齊</option>
+              </select>
+            </div>
+            <div class="field" style="flex: 0.42;">
+              <label for="customHeaderColor">字色</label>
+              <input type="color" id="customHeaderColor" value="#1e293b" oninput="update()" onchange="update()">
+            </div>
+          </div>
+          <div class="field">
+            <label for="customHeaderSize">主標題字體大小</label>
+            <div class="slider-combo">
+              <input type="range" id="customHeaderSize" min="2.5" max="8.0" step="0.5" value="4.0" oninput="syncFromRange('customHeaderSize')" onchange="syncFromRange('customHeaderSize')">
+              <div class="stepper">
+                <button type="button" class="step-btn" onclick="stepPair('customHeaderSize', -0.5)">－</button>
+                <input type="number" id="customHeaderSizeNum" min="2.0" max="10.0" step="0.5" value="4.0" oninput="syncFromNumber('customHeaderSize')" onchange="syncFromNumber('customHeaderSize', true)">
+                <button type="button" class="step-btn" onclick="stepPair('customHeaderSize', 0.5)">＋</button>
+              </div>
+              <span class="unit-tag">mm</span>
+            </div>
           </div>
         </div>
 
@@ -1103,11 +1302,18 @@
   <main class="preview-pane">
     <div class="preview-toolbar">
       <div id="infoText">等待瀏覽器執行腳本…</div>
-      <div class="zoom-controls">
-        <button type="button" class="zoom-btn" onclick="changeZoom(-0.1)">－</button>
-        <span id="zoomLabel">100%</span>
-        <button type="button" class="zoom-btn" onclick="changeZoom(0.1)">＋</button>
-        <button type="button" class="zoom-btn" onclick="resetZoom()">適應畫面</button>
+      <div class="toolbar-actions">
+        <div class="page-nav hidden" id="pageNav" style="display:none">
+          <button type="button" class="zoom-btn" id="btnPrevPage" onclick="changePreviewPage(-1)">‹</button>
+          <span id="pageNavLabel">1 / 1 頁</span>
+          <button type="button" class="zoom-btn" id="btnNextPage" onclick="changePreviewPage(1)">›</button>
+        </div>
+        <div class="zoom-controls">
+          <button type="button" class="zoom-btn" onclick="changeZoom(-0.1)">－</button>
+          <span id="zoomLabel">100%</span>
+          <button type="button" class="zoom-btn" onclick="changeZoom(0.1)">＋</button>
+          <button type="button" class="zoom-btn" onclick="resetZoom()">適應畫面</button>
+        </div>
       </div>
     </div>
     <div class="preview-scroll" id="previewScroll">
@@ -1169,13 +1375,15 @@
     grid: '方格紙',
     graph: '中學繪圖紙',
     music: '五線譜',
+    dse: 'DSE 中文作文紙',
     practice: '田／米字格',
-    english: '英文四線',
+    english: '英文簿紙',
     dot: '點陣紙'
   };
 
   var PX_PER_MM = 3.2;
   var currentMode = 'lined';
+  var currentPreviewPage = 1;
   var zoomScale = 1;
   var lastWinW = 0;
   var printSyncTimer = null;
@@ -1217,6 +1425,13 @@
     var n = parseFloat(val);
     if (!isFinite(n)) return fallback;
     return Math.max(min, Math.min(max, n));
+  }
+
+  function clampAndUpdate(el, min, max, fallback, isInt) {
+    if (!el) return;
+    var val = clampNum(el.value, min, max, fallback);
+    el.value = isInt ? Math.round(val) : val;
+    update();
   }
 
   function roundStep(val, step) {
@@ -1291,6 +1506,11 @@
     update();
   }
 
+  function resetHeaderOffset() {
+    setPairValue('headerOffsetX', 0);
+    update();
+  }
+
   function getConfig() {
     var paperKey = byId('paperSize').value;
     var base = PAPER_SIZES[paperKey] || PAPER_SIZES.A4;
@@ -1329,19 +1549,35 @@
       boxSize: clampNum(byId('boxSizeNum').value, 6, 35, 12),
       practiceStyle: byId('practiceStyle').value,
       practiceRowGap: clampNum(byId('practiceRowGap').value, 0, 20, 3),
-      engUnit: clampNum(byId('engUnitNum').value, 2, 10, 4),
-      engGap: clampNum(byId('engGapNum').value, 1, 20, 6),
+      dseCols: parseInt(byId('dseCols').value, 10) || 20,
+      dseRows: parseInt(byId('dseRows').value, 10) || 0,
+      dseRowGap: clampNum(byId('dseRowGapNum').value, 1.6, 12.0, 3.4),
+      dseWordCount: byId('dseWordCount').value,
+      dseContinueCount: byId('dseContinueCount').checked,
+      dseMidMark: byId('dseMidMark').checked,
+      engStyle: byId('engStyle').value,
+      engUnit: clampNum(byId('engUnitNum').value, 2, 10, 3.5),
+      engGap: clampNum(byId('engGapNum').value, 1, 20, 6.0),
+      engHkRedMode: byId('engHkRedMode').value,
+      engHkRedColor: byId('engHkRedColor').value,
+      engEdgeToEdge: byId('engEdgeToEdge').checked,
       engRedBase: byId('engRedBase').checked,
       dotSpacing: clampNum(byId('dotSpacingNum').value, 2, 25, 5),
       dotRadius: clampNum(byId('dotRadiusNum').value, 0.2, 2.5, 0.6),
       lineColor: byId('lineColor').value,
-      lineWidth: clampNum(byId('lineWidthNum').value, 0.1, 1.5, 0.25),
+      lineWidth: clampNum(byId('lineWidthNum').value, 0.1, 1.5, 0.24),
       lineOpacity: clampNum(byId('lineOpacityNum').value, 20, 100, 85) / 100,
       redLineStyle: byId('redLineStyle').value,
       redLinePos: clampNum(byId('redLinePos').value, 5, w - 5, 28),
       redLineColor: byId('redLineColor').value,
       redLineFullHeight: byId('redLineFullHeight').checked,
       headerStyle: byId('headerStyle').value,
+      headerOffsetX: clampNum(byId('headerOffsetXNum').value, -80, 80, 0),
+      customHeaderTitle: byId('customHeaderTitle').value,
+      customHeaderSub: byId('customHeaderSub').value,
+      customHeaderAlign: byId('customHeaderAlign').value,
+      customHeaderColor: byId('customHeaderColor').value,
+      customHeaderSize: clampNum(byId('customHeaderSizeNum').value, 2.0, 10.0, 4.0),
       showPageNumber: byId('showPageNumber').checked
     };
   }
@@ -1375,8 +1611,18 @@
     if (data.boxSize != null) setPairValue('boxSize', data.boxSize);
     if (data.practiceStyle) byId('practiceStyle').value = data.practiceStyle;
     if (data.practiceRowGap != null) byId('practiceRowGap').value = data.practiceRowGap;
+    if (data.dseCols != null) byId('dseCols').value = String(data.dseCols);
+    if (data.dseRows != null) byId('dseRows').value = String(data.dseRows);
+    if (data.dseRowGap != null) setPairValue('dseRowGap', data.dseRowGap);
+    if (data.dseWordCount) byId('dseWordCount').value = data.dseWordCount;
+    if (data.dseContinueCount != null) byId('dseContinueCount').checked = !!data.dseContinueCount;
+    if (data.dseMidMark != null) byId('dseMidMark').checked = !!data.dseMidMark;
+    if (data.engStyle) byId('engStyle').value = data.engStyle;
     if (data.engUnit != null) setPairValue('engUnit', data.engUnit);
     if (data.engGap != null) setPairValue('engGap', data.engGap);
+    if (data.engHkRedMode) byId('engHkRedMode').value = data.engHkRedMode;
+    if (data.engHkRedColor) byId('engHkRedColor').value = data.engHkRedColor;
+    if (data.engEdgeToEdge != null) byId('engEdgeToEdge').checked = !!data.engEdgeToEdge;
     if (data.engRedBase != null) byId('engRedBase').checked = !!data.engRedBase;
     if (data.dotSpacing != null) setPairValue('dotSpacing', data.dotSpacing);
     if (data.dotRadius != null) setPairValue('dotRadius', data.dotRadius);
@@ -1388,6 +1634,12 @@
     if (data.redLineColor) byId('redLineColor').value = data.redLineColor;
     if (data.redLineFullHeight != null) byId('redLineFullHeight').checked = !!data.redLineFullHeight;
     if (data.headerStyle) byId('headerStyle').value = data.headerStyle;
+    if (data.headerOffsetX != null) setPairValue('headerOffsetX', data.headerOffsetX);
+    if (data.customHeaderTitle != null) byId('customHeaderTitle').value = data.customHeaderTitle;
+    if (data.customHeaderSub != null) byId('customHeaderSub').value = data.customHeaderSub;
+    if (data.customHeaderAlign) byId('customHeaderAlign').value = data.customHeaderAlign;
+    if (data.customHeaderColor) byId('customHeaderColor').value = data.customHeaderColor;
+    if (data.customHeaderSize != null) setPairValue('customHeaderSize', data.customHeaderSize);
     if (data.showPageNumber != null) byId('showPageNumber').checked = !!data.showPageNumber;
   }
 
@@ -1467,10 +1719,16 @@
     var dots = [];
     var paths = [];
     var texts = [];
+    var dseMeta = null;
     var summary = '';
 
     var usableW = Math.max(0, cfg.w - cfg.mLeft - cfg.mRight);
     var usableH = Math.max(0, cfg.h - cfg.mTop - cfg.mBottom);
+    var hDx = cfg.headerOffsetX || 0;
+
+    function clampX(val) {
+      return Math.max(2, Math.min(cfg.w - 2, val));
+    }
 
     // 1. 頁頭處理
     if (cfg.headerStyle === 'doubleLine' && cfg.mTop >= 6) {
@@ -1482,8 +1740,9 @@
       var hop = Math.min(1, cfg.lineOpacity + 0.15);
       lines.push({ x1: hx1, y1: baseY - 1.1, x2: hx2, y2: baseY - 1.1, color: cfg.lineColor, width: hlw, opacity: hop });
       lines.push({ x1: hx1, y1: baseY, x2: hx2, y2: baseY, color: cfg.lineColor, width: hlw, opacity: hop });
+
     } else if ((cfg.headerStyle === 'studentZh' || cfg.headerStyle === 'studentEn') && cfg.mTop >= 12) {
-      var hy = cfg.mTop - 5.5;
+      var hy = cfg.mTop - 5.2;
       var redOffset = cfg.redLineStyle !== 'none' ? cfg.redLinePos + 4 : cfg.mLeft;
       var startX = Math.max(cfg.mLeft, redOffset);
       var endX = cfg.w - cfg.mRight;
@@ -1500,29 +1759,86 @@
         var lineEnds = [col2 - 4, col3 - 4, endX];
 
         for (var hi = 0; hi < 3; hi++) {
-          texts.push({ x: colsArr[hi], y: hy, text: labels[hi], size: 3.6, color: '#334155', align: 'left' });
-          var lx1 = colsArr[hi] + labelW[hi];
-          var lx2 = lineEnds[hi];
+          var sx = clampX(colsArr[hi] + hDx);
+          texts.push({ x: sx, y: hy, text: labels[hi], size: 3.6, color: '#334155', align: 'left' });
+          var lx1 = clampX(colsArr[hi] + labelW[hi] + hDx);
+          var lx2 = clampX(lineEnds[hi] + hDx);
           if (lx2 > lx1 + 4) {
             lines.push({ x1: lx1, y1: hy + 0.8, x2: lx2, y2: hy + 0.8, color: '#64748b', width: 0.25, opacity: 0.9 });
           }
         }
       }
-    } else if (cfg.headerStyle === 'musicTitle' && cfg.mTop >= 16) {
-      // 樂譜標題欄：置中曲名橫線 + 右下作曲／編曲橫線
-      var titleY = Math.max(10, cfg.mTop - 13);
-      var titleHalfW = Math.min(48, usableW * 0.34);
-      var cxMid = cfg.w / 2;
-      lines.push({ x1: cxMid - titleHalfW, y1: titleY, x2: cxMid + titleHalfW, y2: titleY, color: '#475569', width: 0.3, opacity: 0.85 });
-      texts.push({ x: cxMid - titleHalfW - 11.5, y: titleY - 0.6, text: '曲名：', size: 3.6, color: '#334155', align: 'left' });
 
-      var compY = cfg.mTop - 5.5;
-      var compEndX = cfg.w - cfg.mRight;
-      var compLineW = Math.min(36, usableW * 0.26);
-      var compStartX = compEndX - compLineW;
-      if (compStartX > cfg.mLeft + 20) {
-        texts.push({ x: compStartX - 11.5, y: compY - 0.6, text: '作曲：', size: 3.3, color: '#334155', align: 'left' });
-        lines.push({ x1: compStartX, y1: compY, x2: compEndX, y2: compY, color: '#64748b', width: 0.25, opacity: 0.85 });
+    } else if (cfg.headerStyle === 'musicTitle' && cfg.mTop >= 16) {
+      var compY = cfg.mTop - 4.8;
+      var titleY = Math.max(7.5, compY - Math.min(8.5, Math.max(5.5, (cfg.mTop - 10) * 0.55)));
+      var titleHalfW = Math.min(48, usableW * 0.34);
+      var cxMid = clampX(cfg.w / 2 + hDx);
+      lines.push({ x1: clampX(cxMid - titleHalfW), y1: titleY, x2: clampX(cxMid + titleHalfW), y2: titleY, color: '#475569', width: 0.3, opacity: 0.85 });
+      texts.push({ x: clampX(cxMid - titleHalfW - 11.5), y: titleY - 0.6, text: '曲名：', size: 3.6, color: '#334155', align: 'left' });
+
+      if (cfg.mTop >= 20) {
+        var compEndX = clampX(cfg.w - cfg.mRight + hDx);
+        var compLineW = Math.min(36, usableW * 0.26);
+        var compStartX = clampX(compEndX - compLineW);
+        if (compEndX > compStartX + 8) {
+          texts.push({ x: clampX(compStartX - 11.5), y: compY - 0.6, text: '作曲：', size: 3.3, color: '#334155', align: 'left' });
+          lines.push({ x1: compStartX, y1: compY, x2: compEndX, y2: compY, color: '#64748b', width: 0.25, opacity: 0.85 });
+        }
+      }
+
+    } else if (cfg.headerStyle === 'dseHeader' && cfg.mTop >= 14) {
+      var dHy = cfg.mTop - 4.8;
+      var dseTitleY = Math.max(7.0, dHy - Math.min(8.0, Math.max(5.5, (cfg.mTop - 11) * 0.55)));
+      var dRedOff = cfg.redLineStyle !== 'none' ? cfg.redLinePos + 4 : cfg.mLeft;
+      var dStartX = Math.max(cfg.mLeft, dRedOff);
+      var dEndX = cfg.w - cfg.mRight;
+      var dSpan = dEndX - dStartX;
+
+      if (cfg.mTop >= 19) {
+        texts.push({ x: clampX((dStartX + dEndX) / 2 + hDx), y: dseTitleY, text: '模擬香港中學文憑考試　中國語文寫作紙', size: 3.9, color: '#1e293b', align: 'center' });
+      }
+      if (dSpan >= 80) {
+        var c1 = dStartX;
+        var c2 = dStartX + dSpan * 0.22;
+        var c3 = dStartX + dSpan * 0.56;
+        var c4 = dStartX + dSpan * 0.77;
+        var dLabels = ['題號：', '姓名：', '班別：', '日期：'];
+        var dColsX = [c1, c2, c3, c4];
+        var dEndsX = [c2 - 3.5, c3 - 3.5, c4 - 3.5, dEndX];
+        for (var dhi = 0; dhi < 4; dhi++) {
+          texts.push({ x: clampX(dColsX[dhi] + hDx), y: dHy, text: dLabels[dhi], size: 3.3, color: '#334155', align: 'left' });
+          var dlx1 = clampX(dColsX[dhi] + 10.2 + hDx);
+          var dlx2 = clampX(dEndsX[dhi] + hDx);
+          if (dlx2 > dlx1 + 3) {
+            lines.push({ x1: dlx1, y1: dHy + 0.8, x2: dlx2, y2: dHy + 0.8, color: '#64748b', width: 0.25, opacity: 0.85 });
+          }
+        }
+      }
+
+    } else if (cfg.headerStyle === 'custom' && cfg.mTop >= 10) {
+      var cRedOff = cfg.redLineStyle !== 'none' ? cfg.redLinePos + 4 : cfg.mLeft;
+      var cStartX = Math.max(cfg.mLeft, cRedOff);
+      var cEndX = cfg.w - cfg.mRight;
+      var cTitle = (cfg.customHeaderTitle || '').trim();
+      var cSub = (cfg.customHeaderSub || '').trim();
+      var cAlign = cfg.customHeaderAlign || 'center';
+      var anchorX = cAlign === 'left' ? cStartX : (cAlign === 'right' ? cEndX : (cStartX + cEndX) / 2);
+      var drawAnchorX = clampX(anchorX + hDx);
+      var cSize = cfg.customHeaderSize || 4.0;
+      var cSubSize = Math.max(2.6, Math.min(3.5, cSize * 0.78));
+      var cCol = cfg.customHeaderColor || '#1e293b';
+
+      var subY = cfg.mTop - 4.8;
+      if (cTitle && cSub) {
+        var titleGap = Math.max(cSize + 2.0, Math.min(8.5, (cfg.mTop - 10) * 0.55));
+        var mainY = Math.max(cSize + 2.5, subY - titleGap);
+        texts.push({ x: drawAnchorX, y: mainY, text: cTitle, size: cSize, color: cCol, align: cAlign });
+        texts.push({ x: drawAnchorX, y: subY, text: cSub, size: cSubSize, color: cCol, align: cAlign });
+      } else if (cTitle) {
+        texts.push({ x: drawAnchorX, y: cfg.mTop - 5.2, text: cTitle, size: cSize, color: cCol, align: cAlign });
+      } else if (cSub) {
+        texts.push({ x: drawAnchorX, y: cfg.mTop - 5.2, text: cSub, size: cSubSize, color: cCol, align: cAlign });
       }
     }
 
@@ -1530,7 +1846,7 @@
     if (cfg.mode === 'lined') {
       var x1 = cfg.linedEdgeToEdge ? 0 : cfg.mLeft;
       var x2 = cfg.linedEdgeToEdge ? cfg.w : cfg.w - cfg.mRight;
-      var startY = cfg.headerStyle === 'doubleLine' ? cfg.mTop + cfg.lineSpacing : cfg.mTop;
+      var startY = (cfg.headerStyle === 'doubleLine') ? cfg.mTop + cfg.lineSpacing : cfg.mTop;
       var count = 0;
       for (var y = startY; y <= cfg.h - cfg.mBottom + 0.01; y += cfg.lineSpacing) {
         lines.push({ x1: x1, y1: y, x2: x2, y2: y, color: cfg.lineColor, width: cfg.lineWidth, opacity: cfg.lineOpacity });
@@ -1668,9 +1984,11 @@
     } else if (cfg.mode === 'music') {
       var sp = cfg.musicSpace;
       var staffH = sp * 4;
-      var innerGap = cfg.musicInnerGap;
-      var sysGap = cfg.musicSystemGap;
       var layout = cfg.musicLayout;
+      var hasTreble = (cfg.musicClef === 'treble' || cfg.musicClef === 'grandAuto');
+      var minSafeGap = hasTreble ? sp * 3.6 : sp * 1.4;
+      var innerGap = Math.max(cfg.musicInnerGap, (layout !== 'single' && hasTreble) ? sp * 3.2 : cfg.musicInnerGap);
+      var sysGap = Math.max(cfg.musicSystemGap, minSafeGap);
       var hasBrace = layout === 'grand' || layout === 'vocalPiano';
       var braceReserve = hasBrace ? Math.max(3.6, sp * 1.9) : 0;
 
@@ -1685,9 +2003,8 @@
       var mLeft = cfg.mLeft + braceReserve;
       var mRight = cfg.w - cfg.mRight;
 
-      // 預留高音譜號頂部空間，避免貼近頁頭
-      var topPad = cfg.musicClef !== 'none' ? Math.max(0, sp * 1.6) : 0;
-      var botPad = cfg.musicClef !== 'none' ? Math.max(0, sp * 1.1) : 0;
+      var topPad = hasTreble ? Math.max(0, sp * 1.9) : 0;
+      var botPad = hasTreble ? Math.max(0, sp * 1.5) : 0;
       var availMusicH = Math.max(0, usableH - topPad - botPad);
       var sysCount = sysH > 0 ? Math.floor((availMusicH + sysGap) / (sysH + sysGap)) : 0;
 
@@ -1702,7 +2019,6 @@
 
       if (mRight > mLeft + 15 && sysCount > 0) {
         var totalUsedH = sysCount * sysH + (sysCount - 1) * sysGap;
-        // 垂直略作置中微調，視覺更平衡
         var startY0 = cfg.mTop + topPad + Math.min(4, Math.max(0, (availMusicH - totalUsedH) / 3));
 
         for (var si = 0; si < sysCount; si++) {
@@ -1711,7 +2027,6 @@
           var syBot = sy0 + sysH;
           var isLastSys = (si === sysCount - 1);
 
-          // 繪製每條五線譜的 5 條橫線與譜號
           for (var st = 0; st < staffOffsets.length; st++) {
             var yStaff = sy0 + staffOffsets[st];
             for (var ln = 0; ln < 5; ln++) {
@@ -1719,7 +2034,6 @@
               staffLinesArr.push({ x1: mLeft, y1: ly, x2: mRight, y2: ly, color: cfg.lineColor, width: staffLw, opacity: staffOp });
             }
 
-            // 譜號判定
             var clefToDraw = 'none';
             if (cfg.musicClef === 'treble') {
               clefToDraw = 'treble';
@@ -1742,7 +2056,6 @@
             }
           }
 
-          // 鋼琴花括號（大譜表全組，或聲樂＋鋼琴的下兩行）
           if (layout === 'grand') {
             addPianoBrace(paths, mLeft - Math.max(0.9, sp * 0.45), syTop, syBot, Math.max(2.6, sp * 1.45), cfg.lineColor, symOp);
           } else if (layout === 'vocalPiano') {
@@ -1750,12 +2063,10 @@
             addPianoBrace(paths, mLeft - Math.max(0.9, sp * 0.45), pianoTop, syBot, Math.max(2.6, sp * 1.45), cfg.lineColor, symOp);
           }
 
-          // 左邊垂直邊線（多行譜表永遠連接左邊線；單行視設定）
           if (cfg.musicSideBars || staffOffsets.length > 1) {
             barLinesArr.push({ x1: mLeft, y1: syTop, x2: mLeft, y2: syBot, color: cfg.lineColor, width: barLw, opacity: symOp });
           }
 
-          // 右邊垂直邊線或終止雙小節線
           if (isLastSys && cfg.musicFinalBar) {
             var thinGap = Math.max(1.2, sp * 0.65);
             barLinesArr.push({ x1: mRight - thinGap, y1: syTop, x2: mRight - thinGap, y2: syBot, color: cfg.lineColor, width: barLw, opacity: symOp });
@@ -1764,7 +2075,6 @@
             barLinesArr.push({ x1: mRight, y1: syTop, x2: mRight, y2: syBot, color: cfg.lineColor, width: barLw, opacity: symOp });
           }
 
-          // 均分小節線
           if (cfg.musicBars > 1) {
             var clefPad = cfg.musicClef !== 'none' ? sp * 3.8 : 0;
             var barStart = mLeft + clefPad;
@@ -1774,7 +2084,6 @@
               for (var b = 1; b < cfg.musicBars; b++) {
                 var bx = barStart + (barSpan * b) / cfg.musicBars;
                 if (layout === 'vocalPiano') {
-                  // 聲樂行獨立小節線，鋼琴大譜表上下貫穿小節線
                   barLinesArr.push({ x1: bx, y1: sy0, x2: bx, y2: sy0 + staffH, color: cfg.lineColor, width: barLw, opacity: staffOp });
                   barLinesArr.push({ x1: bx, y1: sy0 + staffOffsets[1], x2: bx, y2: syBot, color: cfg.lineColor, width: barLw, opacity: staffOp });
                 } else {
@@ -1789,6 +2098,90 @@
       lines = lines.concat(staffLinesArr, barLinesArr);
       var unitName = layout === 'single' ? '行' : '組大譜表';
       summary = '譜距 ' + sp.toFixed(1) + ' mm（譜高 ' + staffH.toFixed(1) + ' mm）· 共 ' + sysCount + ' ' + unitName;
+
+    } else if (cfg.mode === 'dse') {
+      var dCols = cfg.dseCols;
+      var dGap = cfg.dseRowGap;
+      var showCount = cfg.dseWordCount !== 'none';
+      var countReserve = showCount ? 9.5 : 0;
+      var maxBoxW = Math.max(3.5, (usableW - countReserve) / dCols);
+      var dRows, boxS;
+
+      if (cfg.dseRows > 0) {
+        var maxFitRows = Math.max(1, Math.floor((usableH + dGap) / (3.5 + dGap)));
+        dRows = Math.min(cfg.dseRows, maxFitRows);
+        var maxBoxH = (usableH - (dRows - 1) * dGap) / dRows;
+        boxS = Math.max(3.5, Math.min(maxBoxW, maxBoxH));
+      } else {
+        boxS = maxBoxW;
+        dRows = Math.max(1, Math.floor((usableH + dGap) / (boxS + dGap)));
+      }
+
+      var gridW = dCols * boxS;
+      var gridH = dRows * boxS + Math.max(0, dRows - 1) * dGap;
+      var dOx = cfg.mLeft + Math.max(0, (usableW - (gridW + countReserve)) / 2);
+      var dOy = cfg.mTop;
+
+      var innerLw = Math.max(0.14, cfg.lineWidth * 0.85);
+      var rowLw = Math.max(0.22, cfg.lineWidth * 1.15);
+      var borderLw = Math.max(0.32, cfg.lineWidth * 1.65);
+      var midCol = (dCols % 2 === 0) ? (dCols / 2) : -1;
+
+      var innerLines = [];
+      var boldLines = [];
+
+      for (var drIdx = 0; drIdx < dRows; drIdx++) {
+        var rTop = dOy + drIdx * (boxS + dGap);
+        var rBot = rTop + boxS;
+
+        boldLines.push({ x1: dOx, y1: rTop, x2: dOx + gridW, y2: rTop, color: cfg.lineColor, width: rowLw, opacity: cfg.lineOpacity });
+        boldLines.push({ x1: dOx, y1: rBot, x2: dOx + gridW, y2: rBot, color: cfg.lineColor, width: rowLw, opacity: cfg.lineOpacity });
+
+        for (var dcIdx = 0; dcIdx <= dCols; dcIdx++) {
+          var vxDse = dOx + dcIdx * boxS;
+          var isEdge = (dcIdx === 0 || dcIdx === dCols);
+          var isMid = (cfg.dseMidMark && dcIdx === midCol);
+          if (isEdge) {
+            boldLines.push({ x1: vxDse, y1: rTop, x2: vxDse, y2: rBot, color: cfg.lineColor, width: cfg.dseMidMark ? borderLw : rowLw, opacity: Math.min(1, cfg.lineOpacity + 0.12) });
+          } else if (isMid) {
+            boldLines.push({ x1: vxDse, y1: rTop, x2: vxDse, y2: rBot, color: cfg.lineColor, width: rowLw * 1.25, opacity: Math.min(1, cfg.lineOpacity + 0.1) });
+          } else {
+            innerLines.push({ x1: vxDse, y1: rTop, x2: vxDse, y2: rBot, color: cfg.lineColor, width: innerLw, opacity: cfg.lineOpacity * 0.88 });
+          }
+        }
+      }
+
+      if (cfg.dseMidMark && dRows > 0) {
+        var padFrame = 1.4;
+        var fx1 = dOx - padFrame;
+        var fx2 = dOx + gridW + padFrame;
+        var fy1 = dOy - padFrame;
+        var fy2 = dOy + gridH + padFrame;
+        boldLines.push({ x1: fx1, y1: fy1, x2: fx2, y2: fy1, color: cfg.lineColor, width: borderLw, opacity: Math.min(1, cfg.lineOpacity + 0.12) });
+        boldLines.push({ x1: fx1, y1: fy2, x2: fx2, y2: fy2, color: cfg.lineColor, width: borderLw, opacity: Math.min(1, cfg.lineOpacity + 0.12) });
+        boldLines.push({ x1: fx1, y1: fy1, x2: fx1, y2: fy2, color: cfg.lineColor, width: borderLw, opacity: Math.min(1, cfg.lineOpacity + 0.12) });
+        boldLines.push({ x1: fx2, y1: fy1, x2: fx2, y2: fy2, color: cfg.lineColor, width: borderLw, opacity: Math.min(1, cfg.lineOpacity + 0.12) });
+      }
+
+      lines = lines.concat(innerLines, boldLines);
+
+      var perPageChars = dCols * dRows;
+      dseMeta = {
+        cols: dCols,
+        rows: dRows,
+        perPage: perPageChars,
+        boxS: boxS,
+        gap: dGap,
+        ox: dOx,
+        oy: dOy,
+        labelX: dOx + gridW + (cfg.dseMidMark ? 2.8 : 1.8),
+        mode: cfg.dseWordCount,
+        continueCount: cfg.dseContinueCount,
+        color: cfg.lineColor
+      };
+
+      var totalAllChars = perPageChars * cfg.pageCount;
+      summary = dCols + '×' + dRows + ' 格（每頁 ' + perPageChars + ' 字' + (cfg.pageCount > 1 ? '，共 ' + totalAllChars + ' 字' : '') + ' · 格寬 ' + boxS.toFixed(1) + 'mm）';
 
     } else if (cfg.mode === 'practice') {
       var bs = cfg.boxSize;
@@ -1834,27 +2227,53 @@
     } else if (cfg.mode === 'english') {
       var u = cfg.engUnit;
       var eGap = cfg.engGap;
-      var groupH = u * 3;
-      var ex1 = cfg.mLeft;
-      var ex2 = cfg.w - cfg.mRight;
-      var eRows = Math.floor((usableH + eGap) / (groupH + eGap));
-      var eDash = [1.4, 1.1];
+      var ex1 = cfg.engEdgeToEdge ? 0 : cfg.mLeft;
+      var ex2 = cfg.engEdgeToEdge ? cfg.w : (cfg.w - cfg.mRight);
 
-      if (ex2 > ex1 && eRows > 0) {
-        for (var er = 0; er < eRows; er++) {
-          var y0 = cfg.mTop + er * (groupH + eGap);
-          lines.push({ x1: ex1, y1: y0, x2: ex2, y2: y0, color: cfg.lineColor, width: cfg.lineWidth, opacity: cfg.lineOpacity });
-          lines.push({ x1: ex1, y1: y0 + u, x2: ex2, y2: y0 + u, color: cfg.lineColor, width: cfg.lineWidth * 0.85, opacity: cfg.lineOpacity * 0.85, dash: eDash });
-          lines.push({
-            x1: ex1, y1: y0 + u * 2, x2: ex2, y2: y0 + u * 2,
-            color: cfg.engRedBase ? cfg.redLineColor : cfg.lineColor,
-            width: cfg.lineWidth * 1.15,
-            opacity: Math.min(1, cfg.lineOpacity + 0.1)
-          });
-          lines.push({ x1: ex1, y1: y0 + u * 3, x2: ex2, y2: y0 + u * 3, color: cfg.lineColor, width: cfg.lineWidth, opacity: cfg.lineOpacity });
+      if (cfg.engStyle === 'hkTwoLine') {
+        // 港式小學英文簿：等距紅藍藍紅藍藍…紅（每 3 格為一行，最頂與最底為分隔線）
+        var hkRows = Math.floor((usableH + 0.01) / (u * 3));
+        var bandMode = cfg.engHkRedMode;
+        if (ex2 > ex1 && hkRows > 0) {
+          var totalEngLines = hkRows * 3 + 1;
+          for (var eIdx = 0; eIdx < totalEngLines; eIdx++) {
+            var yEng = cfg.mTop + eIdx * u;
+            var isBandLine = (eIdx % 3 === 0);
+            if (isBandLine && bandMode === 'none') {
+              continue;
+            }
+            var lineCol = cfg.lineColor;
+            if (isBandLine) {
+              lineCol = (bandMode === 'custom') ? cfg.engHkRedColor : cfg.redLineColor;
+            }
+            lines.push({ x1: ex1, y1: yEng, x2: ex2, y2: yEng, color: lineCol, width: cfg.lineWidth, opacity: cfg.lineOpacity });
+          }
         }
+        var bandDesc = bandMode === 'red' ? '港式紅藍藍紅' : (bandMode === 'custom' ? '港式自訂色雙藍線' : '港式無紅線雙藍線');
+        summary = bandDesc + ' · 線距 ' + u.toFixed(1) + ' mm（每行 ' + (u * 3).toFixed(1) + ' mm）· 共 ' + hkRows + ' 行';
+
+      } else {
+        // 標準英文四線三格
+        var groupH = u * 3;
+        var eRows = Math.floor((usableH + eGap) / (groupH + eGap));
+        var eDash = [1.4, 1.1];
+
+        if (ex2 > ex1 && eRows > 0) {
+          for (var er = 0; er < eRows; er++) {
+            var y0 = cfg.mTop + er * (groupH + eGap);
+            lines.push({ x1: ex1, y1: y0, x2: ex2, y2: y0, color: cfg.lineColor, width: cfg.lineWidth, opacity: cfg.lineOpacity });
+            lines.push({ x1: ex1, y1: y0 + u, x2: ex2, y2: y0 + u, color: cfg.lineColor, width: cfg.lineWidth * 0.85, opacity: cfg.lineOpacity * 0.85, dash: eDash });
+            lines.push({
+              x1: ex1, y1: y0 + u * 2, x2: ex2, y2: y0 + u * 2,
+              color: cfg.engRedBase ? cfg.redLineColor : cfg.lineColor,
+              width: cfg.lineWidth * 1.15,
+              opacity: Math.min(1, cfg.lineOpacity + 0.1)
+            });
+            lines.push({ x1: ex1, y1: y0 + u * 3, x2: ex2, y2: y0 + u * 3, color: cfg.lineColor, width: cfg.lineWidth, opacity: cfg.lineOpacity });
+          }
+        }
+        summary = '英文四線 · 單格 ' + u.toFixed(1) + ' mm · 共 ' + eRows + ' 組';
       }
-      summary = '單格 ' + u + ' mm · 共 ' + eRows + ' 組';
 
     } else if (cfg.mode === 'dot') {
       var ds = cfg.dotSpacing;
@@ -1889,7 +2308,7 @@
       }
     }
 
-    return { lines: lines, dots: dots, paths: paths, texts: texts, summary: summary };
+    return { lines: lines, dots: dots, paths: paths, texts: texts, dseMeta: dseMeta, summary: summary };
   }
 
   function escapeXml(str) {
@@ -1913,6 +2332,30 @@
       }
     }
     return out.join(' ');
+  }
+
+  function getDsePageLabels(dseMeta, pageIndex) {
+    var out = [];
+    if (!dseMeta || dseMeta.mode === 'none') return out;
+    var baseOffset = dseMeta.continueCount ? ((pageIndex - 1) * dseMeta.perPage) : 0;
+    for (var r = 0; r < dseMeta.rows; r++) {
+      var cumCount = baseOffset + (r + 1) * dseMeta.cols;
+      var prevCount = cumCount - dseMeta.cols;
+      var crossedHundred = Math.floor(cumCount / 100) > Math.floor(prevCount / 100);
+      var shouldShow = (dseMeta.mode === 'everyRow') || (dseMeta.mode === 'every100' && crossedHundred);
+      if (shouldShow) {
+        var rTop = dseMeta.oy + r * (dseMeta.boxS + dseMeta.gap);
+        var labelY = rTop + dseMeta.boxS * 0.68;
+        out.push({
+          x: dseMeta.labelX,
+          y: labelY,
+          text: String(cumCount),
+          size: Math.min(2.8, Math.max(2.1, dseMeta.boxS * 0.30)),
+          color: '#64748b'
+        });
+      }
+    }
+    return out;
   }
 
   function buildSVG(cfg, geom, pageIndex, totalPages) {
@@ -1957,7 +2400,7 @@
 
     for (var k = 0; k < geom.texts.length; k++) {
       var t = geom.texts[k];
-      var anchor = t.align === 'center' ? 'middle' : 'start';
+      var anchor = t.align === 'center' ? 'middle' : (t.align === 'right' ? 'end' : 'start');
       parts.push(
         '<text x="' + t.x.toFixed(2) + '" y="' + t.y.toFixed(2) +
         '" font-size="' + t.size + '" fill="' + t.color +
@@ -1965,6 +2408,19 @@
         '" font-family="\'BiauKaiHK\',\'PingFang HK\',\'Microsoft JhengHei\',sans-serif">' +
         escapeXml(t.text) + '</text>'
       );
+    }
+
+    if (geom.dseMeta) {
+      var dseLabels = getDsePageLabels(geom.dseMeta, pageIndex);
+      for (var dl = 0; dl < dseLabels.length; dl++) {
+        var dlb = dseLabels[dl];
+        parts.push(
+          '<text x="' + dlb.x.toFixed(2) + '" y="' + dlb.y.toFixed(2) +
+          '" font-size="' + dlb.size.toFixed(2) + '" fill="' + dlb.color +
+          '" text-anchor="start" font-family="Helvetica,Arial,sans-serif">' +
+          dlb.text + '</text>'
+        );
+      }
     }
 
     if (cfg.showPageNumber) {
@@ -1990,22 +2446,63 @@
 
   function updateControlStates(cfg) {
     var noRed = cfg.redLineStyle === 'none';
+    var usesEngRed = (cfg.mode === 'english' && cfg.engStyle === 'fourLine' && cfg.engRedBase) ||
+                     (cfg.mode === 'english' && cfg.engStyle === 'hkTwoLine' && cfg.engHkRedMode === 'red');
+
     byId('redLinePos').disabled = noRed;
-    byId('redLineColor').disabled = noRed;
     byId('redLineFullHeight').disabled = noRed;
     byId('redPosField').classList.toggle('dimmed', noRed);
-    byId('redColorField').classList.toggle('dimmed', noRed);
     byId('redHeightRow').classList.toggle('dimmed', noRed);
+
+    var colorDisabled = noRed && !usesEngRed;
+    byId('redLineColor').disabled = colorDisabled;
+    byId('redColorField').classList.toggle('dimmed', colorDisabled);
+    byId('lbl-redLineColor').textContent = (noRed && usesEngRed) ? '橫紅線色' : '顏色';
 
     var isSingleMusic = cfg.musicLayout === 'single';
     byId('musicInnerGap').disabled = isSingleMusic;
     byId('musicInnerGapField').classList.toggle('dimmed', isSingleMusic);
 
-    var edgeLocked = cfg.mode === 'lined' && cfg.linedEdgeToEdge;
-    byId('marginHint').textContent = edgeLocked ? '單行延伸模式下左右邊距僅影響頁頭' : '';
+    var noDseCount = cfg.dseWordCount === 'none';
+    byId('dseContinueCount').disabled = noDseCount;
+    byId('dseContinueRow').classList.toggle('dimmed', noDseCount);
+
+    var isHkEng = cfg.engStyle === 'hkTwoLine';
+    byId('lbl-engUnit').textContent = isHkEng ? '等距線距（單格高度）' : '單格高度';
+    byId('engGapRow').classList.toggle('hidden', isHkEng);
+    byId('engGapRow').style.display = isHkEng ? 'none' : '';
+    byId('engHkRedRow').classList.toggle('hidden', !isHkEng);
+    byId('engHkRedRow').style.display = isHkEng ? '' : 'none';
+    var showCustomBandColor = isHkEng && cfg.engHkRedMode === 'custom';
+    byId('engHkRedColorField').classList.toggle('hidden', !showCustomBandColor);
+    byId('engHkRedColorField').style.display = showCustomBandColor ? '' : 'none';
+    byId('engRedBaseRow').classList.toggle('hidden', isHkEng);
+    byId('engRedBaseRow').style.display = isHkEng ? 'none' : '';
+
+    var showHeaderOffset = cfg.headerStyle !== 'none' && cfg.headerStyle !== 'doubleLine';
+    byId('headerOffsetRow').classList.toggle('hidden', !showHeaderOffset);
+    byId('headerOffsetRow').style.display = showHeaderOffset ? '' : 'none';
+
+    var isCustomHeader = cfg.headerStyle === 'custom';
+    byId('customHeaderOpts').classList.toggle('hidden', !isCustomHeader);
+    byId('customHeaderOpts').style.display = isCustomHeader ? '' : 'none';
+
+    var edgeLocked = (cfg.mode === 'lined' && cfg.linedEdgeToEdge) || (cfg.mode === 'english' && cfg.engEdgeToEdge);
+    byId('marginHint').textContent = edgeLocked ? '延伸模式下左右邊距僅影響頁頭' : '';
+
+    var pageNav = byId('pageNav');
+    if (cfg.pageCount > 1) {
+      pageNav.classList.remove('hidden');
+      pageNav.style.display = 'inline-flex';
+      byId('pageNavLabel').textContent = currentPreviewPage + ' / ' + cfg.pageCount + ' 頁';
+      byId('btnPrevPage').disabled = (currentPreviewPage <= 1);
+      byId('btnNextPage').disabled = (currentPreviewPage >= cfg.pageCount);
+    } else {
+      pageNav.classList.add('hidden');
+      pageNav.style.display = 'none';
+    }
   }
 
-  // 即時同步隱藏列印區
   function syncPrintArea(cfg, geom) {
     var c = cfg || getConfig();
     var g = geom || computeGeometry(c);
@@ -2025,19 +2522,24 @@
 
   function schedulePrintSync(cfg, geom) {
     if (printSyncTimer) clearTimeout(printSyncTimer);
+    if (cfg.pageCount > 5 || (cfg.mode === 'graph' && cfg.graphSpec === '1mm' && cfg.pageCount > 2)) {
+      return;
+    }
     printSyncTimer = setTimeout(function () {
       syncPrintArea(cfg, geom);
-    }, 180);
+    }, 600);
   }
 
   function update() {
     try {
       hideStatusBanner();
       var cfg = getConfig();
+      if (currentPreviewPage > cfg.pageCount) currentPreviewPage = cfg.pageCount;
+      if (currentPreviewPage < 1) currentPreviewPage = 1;
       updateControlStates(cfg);
 
       var geom = computeGeometry(cfg);
-      var svgStr = buildSVG(cfg, geom, 1, cfg.pageCount);
+      var svgStr = buildSVG(cfg, geom, currentPreviewPage, cfg.pageCount);
 
       applySheetDimensions(cfg);
       byId('paperSheet').innerHTML = svgStr;
@@ -2058,16 +2560,39 @@
     }
   }
 
+  function changePreviewPage(delta) {
+    var total = Math.round(clampNum(byId('pageCount').value, 1, 20, 1));
+    currentPreviewPage = Math.max(1, Math.min(total, currentPreviewPage + delta));
+    update();
+  }
+
   function onPaperChanged() {
     update();
     resetZoom();
   }
 
+  function onEngStyleChanged() {
+    var style = byId('engStyle').value;
+    if (style === 'hkTwoLine') {
+      setPairValue('engUnit', 3.5);
+      byId('engHkRedMode').value = 'red';
+      byId('engEdgeToEdge').checked = true;
+    } else {
+      setPairValue('engUnit', 4.0);
+      setPairValue('engGap', 6.0);
+      byId('engEdgeToEdge').checked = false;
+      byId('engRedBase').checked = true;
+    }
+    update();
+  }
+
   function onHeaderStyleChanged() {
     var style = byId('headerStyle').value;
     var curTop = parseFloat(byId('marginTop').value) || 0;
-    if (style === 'musicTitle' && curTop < 24) {
-      byId('marginTop').value = 28;
+    if ((style === 'musicTitle' || style === 'dseHeader') && curTop < 24) {
+      byId('marginTop').value = 26;
+    } else if (style === 'custom' && curTop < 22) {
+      byId('marginTop').value = 24;
     } else if ((style === 'studentZh' || style === 'studentEn') && curTop < 18) {
       byId('marginTop').value = 22;
     } else if (style === 'doubleLine' && curTop < 10) {
@@ -2170,7 +2695,6 @@
     }
   }
 
-  // 建立純向量 PDF 1.4 Blob 與檔名（支援線段、三次貝茲向量路徑、多尺寸點陣、中英文頁頭）
   function buildPdfPackage() {
     var cfg = getConfig();
     var geom = computeGeometry(cfg);
@@ -2189,7 +2713,13 @@
         if (img) {
           var name = 'Im' + (imageXObjects.length + 1);
           imageXObjects.push({ name: name, img: img });
-          var drawX = (t.x - img.padMm) * MM_TO_PT;
+          var drawXMm = t.x - img.padMm;
+          if (t.align === 'center') {
+            drawXMm = t.x - img.wMm / 2;
+          } else if (t.align === 'right') {
+            drawXMm = t.x - img.wMm + img.padMm;
+          }
+          var drawX = drawXMm * MM_TO_PT;
           var drawW = img.wMm * MM_TO_PT;
           var drawH = img.hMm * MM_TO_PT;
           var drawY = hPt - (t.y + (img.hMm - img.baselineMm)) * MM_TO_PT;
@@ -2272,7 +2802,7 @@
       baseCmds.push('Q');
     }
 
-    // 4. 點陣及譜號圓點（按顏色與直徑分批，確保不同大小圓點 100% 準確）
+    // 4. 點陣及譜號圓點
     var curDotKey = null;
     for (var di = 0; di < geom.dots.length; di++) {
       var d = geom.dots[di];
@@ -2302,10 +2832,16 @@
       var ta = geom.texts[ai];
       if (isPureAscii(ta.text)) {
         var aRgb = hexToPdfRgb(ta.color, 1);
-        var tx = (ta.x * MM_TO_PT).toFixed(3);
+        var fontSizePtNum = ta.size * MM_TO_PT;
+        var estTxtW = ta.text.length * fontSizePtNum * 0.52;
+        var txNum = ta.x * MM_TO_PT;
+        if (ta.align === 'center') {
+          txNum -= estTxtW / 2;
+        } else if (ta.align === 'right') {
+          txNum -= estTxtW;
+        }
         var ty = (hPt - ta.y * MM_TO_PT).toFixed(3);
-        var fontSizePt = (ta.size * MM_TO_PT).toFixed(2);
-        baseCmds.push('BT /F1 ' + fontSizePt + ' Tf ' + aRgb + ' rg ' + tx + ' ' + ty + ' Td (' + escapePdfText(ta.text) + ') Tj ET');
+        baseCmds.push('BT /F1 ' + fontSizePtNum.toFixed(2) + ' Tf ' + aRgb + ' rg ' + txNum.toFixed(3) + ' ' + ty + ' Td (' + escapePdfText(ta.text) + ') Tj ET');
       }
     }
 
@@ -2348,6 +2884,20 @@
     var kidsRefs = [];
     for (var pg = 1; pg <= pageCount; pg++) {
       var contentsRef = baseStreamId + ' 0 R';
+      var overlayCmds = [];
+
+      if (geom.dseMeta) {
+        var pgDseLabels = getDsePageLabels(geom.dseMeta, pg);
+        for (var dli = 0; dli < pgDseLabels.length; dli++) {
+          var dlItem = pgDseLabels[dli];
+          var dFontPt = (dlItem.size * MM_TO_PT).toFixed(2);
+          var dRgbLbl = hexToPdfRgb(dlItem.color, 1);
+          var dtx = (dlItem.x * MM_TO_PT).toFixed(3);
+          var dty = (hPt - dlItem.y * MM_TO_PT).toFixed(3);
+          overlayCmds.push('BT /F1 ' + dFontPt + ' Tf ' + dRgbLbl + ' rg ' + dtx + ' ' + dty + ' Td (' + escapePdfText(dlItem.text) + ') Tj ET');
+        }
+      }
+
       if (cfg.showPageNumber) {
         var py = Math.max(cfg.h - 6.5, cfg.h - Math.max(4, cfg.mBottom / 2));
         var label = pageCount > 1 ? (pg + ' / ' + pageCount) : String(pg);
@@ -2356,10 +2906,14 @@
         var ntx = (wPt - estW) / 2;
         var nty = hPt - py * MM_TO_PT;
         var nRgb = hexToPdfRgb('#64748b', 1);
-        var numStream = 'BT /F1 ' + numSizePt.toFixed(2) + ' Tf ' + nRgb + ' rg ' + ntx.toFixed(3) + ' ' + nty.toFixed(3) + ' Td (' + escapePdfText(label) + ') Tj ET';
-        var numStreamId = reserveObj();
-        setObj(numStreamId, '<< /Length ' + numStream.length + ' >>\nstream\n' + numStream + '\nendstream');
-        contentsRef = '[' + baseStreamId + ' 0 R ' + numStreamId + ' 0 R]';
+        overlayCmds.push('BT /F1 ' + numSizePt.toFixed(2) + ' Tf ' + nRgb + ' rg ' + ntx.toFixed(3) + ' ' + nty.toFixed(3) + ' Td (' + escapePdfText(label) + ') Tj ET');
+      }
+
+      if (overlayCmds.length > 0) {
+        var overlayStream = overlayCmds.join('\n');
+        var overlayStreamId = reserveObj();
+        setObj(overlayStreamId, '<< /Length ' + overlayStream.length + ' >>\nstream\n' + overlayStream + '\nendstream');
+        contentsRef = '[' + baseStreamId + ' 0 R ' + overlayStreamId + ' 0 R]';
       }
 
       var pageId = reserveObj();
@@ -2394,8 +2948,9 @@
       grid: '方格紙',
       graph: '中學繪圖紙',
       music: '五線譜',
+      dse: '模擬DSE中文作文紙',
       practice: '練字格紙',
-      english: '英文四線紙',
+      english: cfg.engStyle === 'hkTwoLine' ? '港式小學英文簿' : '英文四線紙',
       dot: '點陣紙'
     };
     var filename = modeNames[cfg.mode] + '_' + cfg.paperKey + '_' + cfg.orientation + '.pdf';
@@ -2446,7 +3001,7 @@
         }
       }
     } catch (e) {
-      // 瀏覽器不支援分享檔案，轉入備援流程
+      // 瀏覽器不支援分享檔案
     }
     if (onUnsupported) onUnsupported();
     return false;
@@ -2541,13 +3096,14 @@
   }
 
   function setMode(mode, silent) {
+    var prevMode = currentMode;
     currentMode = mode;
     var tabs = document.querySelectorAll('.mode-tab');
     for (var i = 0; i < tabs.length; i++) {
       var btn = tabs[i];
       btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
     }
-    var modes = ['lined', 'grid', 'graph', 'music', 'practice', 'english', 'dot'];
+    var modes = ['lined', 'grid', 'graph', 'music', 'dse', 'practice', 'english', 'dot'];
     for (var j = 0; j < modes.length; j++) {
       var m = modes[j];
       var panel = byId('opt-' + m);
@@ -2557,16 +3113,39 @@
         panel.style.display = isMatch ? '' : 'none';
       }
     }
-    if (!silent) {
+
+    // 手動切換分頁時，自動清掉不適合新模式的單行紙紅線／雙頂線
+    if (!silent && prevMode !== mode) {
+      var noRedModes = { grid: 1, graph: 1, music: 1, dse: 1, practice: 1, dot: 1 };
+      if (noRedModes[mode]) {
+        if (byId('redLineStyle').value !== 'none') byId('redLineStyle').value = 'none';
+        if (byId('headerStyle').value === 'doubleLine') byId('headerStyle').value = 'none';
+      } else if (mode === 'english' && byId('engStyle').value === 'hkTwoLine') {
+        if (byId('headerStyle').value === 'doubleLine') byId('headerStyle').value = 'none';
+      }
       update();
     }
   }
 
+  function resetCommonPresetDefaults() {
+    byId('paperSize').value = 'A4';
+    byId('orientation').value = 'portrait';
+    byId('pageCount').value = 1;
+    currentPreviewPage = 1;
+    byId('redLineStyle').value = 'none';
+    byId('redLinePos').value = 28;
+    byId('redLineColor').value = '#ef4444';
+    byId('redLineFullHeight').checked = true;
+    byId('headerStyle').value = 'none';
+    setPairValue('headerOffsetX', 0);
+    byId('showPageNumber').checked = false;
+  }
+
   function applyPreset(name) {
+    resetCommonPresetDefaults();
+
     if (name === 'hkLined') {
       setMode('lined', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 24;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 12;
@@ -2574,16 +3153,13 @@
       setPairValue('lineSpacing', 8.5);
       byId('linedEdgeToEdge').checked = true;
       byId('lineColor').value = '#60a5fa';
-      setPairValue('lineWidth', 0.25);
+      setPairValue('lineWidth', 0.24);
       setPairValue('lineOpacity', 85);
       byId('redLineStyle').value = 'double';
       byId('redLinePos').value = 28;
-      byId('redLineFullHeight').checked = true;
       byId('headerStyle').value = 'doubleLine';
     } else if (name === 'primaryLined') {
       setMode('lined', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 24;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 14;
@@ -2591,16 +3167,13 @@
       setPairValue('lineSpacing', 12);
       byId('linedEdgeToEdge').checked = true;
       byId('lineColor').value = '#60a5fa';
-      setPairValue('lineWidth', 0.3);
+      setPairValue('lineWidth', 0.30);
       setPairValue('lineOpacity', 85);
       byId('redLineStyle').value = 'single';
       byId('redLinePos').value = 25;
-      byId('redLineFullHeight').checked = true;
       byId('headerStyle').value = 'studentZh';
     } else if (name === 'hkGraph2mm') {
       setMode('graph', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 18;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 14;
@@ -2609,14 +3182,10 @@
       byId('graphAxis').value = 'none';
       byId('graphSnapMajor').checked = true;
       byId('lineColor').value = '#2e8b57';
-      setPairValue('lineWidth', 0.2);
+      setPairValue('lineWidth', 0.20);
       setPairValue('lineOpacity', 85);
-      byId('redLineStyle').value = 'none';
-      byId('headerStyle').value = 'none';
     } else if (name === 'hkGraph1mm') {
       setMode('graph', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 18;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 14;
@@ -2627,12 +3196,8 @@
       byId('lineColor').value = '#d97706';
       setPairValue('lineWidth', 0.18);
       setPairValue('lineOpacity', 80);
-      byId('redLineStyle').value = 'none';
-      byId('headerStyle').value = 'none';
     } else if (name === 'musicStandard') {
       setMode('music', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 28;
       byId('marginBottom').value = 18;
       byId('marginLeft').value = 15;
@@ -2648,12 +3213,9 @@
       byId('lineColor').value = '#334155';
       setPairValue('lineWidth', 0.22);
       setPairValue('lineOpacity', 90);
-      byId('redLineStyle').value = 'none';
       byId('headerStyle').value = 'musicTitle';
     } else if (name === 'musicPiano') {
       setMode('music', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 28;
       byId('marginBottom').value = 16;
       byId('marginLeft').value = 14;
@@ -2669,12 +3231,9 @@
       byId('lineColor').value = '#334155';
       setPairValue('lineWidth', 0.22);
       setPairValue('lineOpacity', 90);
-      byId('redLineStyle').value = 'none';
       byId('headerStyle').value = 'musicTitle';
     } else if (name === 'mathGrid') {
       setMode('grid', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 15;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 12;
@@ -2683,14 +3242,10 @@
       byId('majorEvery').value = 5;
       byId('gridBorder').value = '1';
       byId('lineColor').value = '#94a3b8';
-      setPairValue('lineWidth', 0.2);
+      setPairValue('lineWidth', 0.20);
       setPairValue('lineOpacity', 80);
-      byId('redLineStyle').value = 'none';
-      byId('headerStyle').value = 'none';
     } else if (name === 'chineseBox') {
       setMode('practice', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 22;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 12;
@@ -2699,30 +3254,60 @@
       byId('practiceStyle').value = 'tian';
       byId('practiceRowGap').value = 3;
       byId('lineColor').value = '#2e8b57';
-      setPairValue('lineWidth', 0.25);
+      setPairValue('lineWidth', 0.24);
       setPairValue('lineOpacity', 85);
-      byId('redLineStyle').value = 'none';
       byId('headerStyle').value = 'studentZh';
+    } else if (name === 'dseChinese') {
+      setMode('dse', true);
+      byId('pageCount').value = 2;
+      byId('marginTop').value = 26;
+      byId('marginBottom').value = 16;
+      byId('marginLeft').value = 14;
+      byId('marginRight').value = 12;
+      byId('dseCols').value = '20';
+      byId('dseRows').value = '20';
+      setPairValue('dseRowGap', 3.4);
+      byId('dseWordCount').value = 'every100';
+      byId('dseContinueCount').checked = true;
+      byId('dseMidMark').checked = true;
+      byId('lineColor').value = '#4b7a5b';
+      setPairValue('lineWidth', 0.22);
+      setPairValue('lineOpacity', 85);
+      byId('headerStyle').value = 'dseHeader';
+      byId('showPageNumber').checked = true;
+    } else if (name === 'hkEngTwoLine') {
+      setMode('english', true);
+      byId('marginTop').value = 24;
+      byId('marginBottom').value = 15;
+      byId('marginLeft').value = 12;
+      byId('marginRight').value = 12;
+      byId('engStyle').value = 'hkTwoLine';
+      setPairValue('engUnit', 3.5);
+      byId('engHkRedMode').value = 'red';
+      byId('engEdgeToEdge').checked = true;
+      byId('lineColor').value = '#6b9bd2';
+      setPairValue('lineWidth', 0.24);
+      setPairValue('lineOpacity', 85);
+      byId('redLineStyle').value = 'single';
+      byId('redLinePos').value = 26;
+      byId('redLineColor').value = '#e11d48';
     } else if (name === 'engFourLine') {
       setMode('english', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 22;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 14;
       byId('marginRight').value = 14;
+      byId('engStyle').value = 'fourLine';
       setPairValue('engUnit', 4);
       setPairValue('engGap', 6);
+      byId('engEdgeToEdge').checked = false;
       byId('engRedBase').checked = true;
       byId('lineColor').value = '#60a5fa';
-      setPairValue('lineWidth', 0.25);
+      setPairValue('lineWidth', 0.24);
       setPairValue('lineOpacity', 85);
-      byId('redLineStyle').value = 'none';
       byId('headerStyle').value = 'studentEn';
     } else if (name === 'dotGrid') {
       setMode('dot', true);
-      byId('paperSize').value = 'A4';
-      byId('orientation').value = 'portrait';
       byId('marginTop').value = 15;
       byId('marginBottom').value = 15;
       byId('marginLeft').value = 14;
@@ -2730,10 +3315,8 @@
       setPairValue('dotSpacing', 5);
       setPairValue('dotRadius', 0.6);
       byId('lineColor').value = '#94a3b8';
-      setPairValue('lineWidth', 0.25);
+      setPairValue('lineWidth', 0.24);
       setPairValue('lineOpacity', 85);
-      byId('redLineStyle').value = 'none';
-      byId('headerStyle').value = 'none';
     }
     update();
     resetZoom();
@@ -2754,12 +3337,17 @@
     var scroll = byId('previewScroll');
     if (!scroll) return;
     var cfg = getConfig();
-    var pad = window.innerWidth <= 860 ? 24 : 48;
+    var isNarrow = window.innerWidth <= 860;
+    var pad = isNarrow ? 24 : 48;
     var availW = Math.max(180, scroll.clientWidth - pad);
-    var availH = Math.max(180, scroll.clientHeight - pad);
+    var availH = Math.max(160, scroll.clientHeight - pad);
     var baseW = cfg.w * PX_PER_MM;
     var baseH = cfg.h * PX_PER_MM;
-    zoomScale = Math.max(0.25, Math.min(1, availW / baseW, availH / baseH));
+    if (isNarrow) {
+      zoomScale = Math.max(0.32, Math.min(1, (availW / baseW) * 0.88));
+    } else {
+      zoomScale = Math.max(0.25, Math.min(1, availW / baseW, availH / baseH));
+    }
     applyZoom();
   }
 
@@ -2770,10 +3358,12 @@
         var jsonStr = decodeURIComponent(hash.slice(5));
         var parsed = JSON.parse(jsonStr);
         applyConfigObject(parsed);
+        return true;
       }
     } catch (e) {
       // 忽略無效 hash
     }
+    return false;
   }
 
   // 匯出給 HTML 內嵌事件呼叫
@@ -2783,9 +3373,13 @@
   window.syncFromNumber = syncFromNumber;
   window.stepPair = stepPair;
   window.setColor = setColor;
+  window.resetHeaderOffset = resetHeaderOffset;
+  window.clampAndUpdate = clampAndUpdate;
   window.update = update;
+  window.changePreviewPage = changePreviewPage;
   window.onPaperChanged = onPaperChanged;
   window.onHeaderStyleChanged = onHeaderStyleChanged;
+  window.onEngStyleChanged = onEngStyleChanged;
   window.downloadDirectPDF = downloadDirectPDF;
   window.printAsPDF = printAsPDF;
   window.changeZoom = changeZoom;
@@ -2820,6 +3414,12 @@
     initApp();
   }
 
+  window.addEventListener('hashchange', function () {
+    if (restoreFromUrlHash()) {
+      update();
+      resetZoom();
+    }
+  });
   window.addEventListener('beforeprint', function () {
     syncPrintArea();
   });
