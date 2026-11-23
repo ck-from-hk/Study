@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四則運算練習（含港式直式答案）</title>
+<style>
+  :root{
+    --bg:#f1f5f9;
+    --surface:#ffffff;
+    --surface-soft:#f8fafc;
+    --border:#e2e8f0;
+    --border-strong:#cbd5e1;
+    --text:#0f172a;
+    --text-muted:#64748b;
+    --primary:#2563eb;
+    --primary-hover:#1d4ed8;
+    --primary-soft:#eff6ff;
+    --ok:#16a34a;
+    --ok-soft:#f0fdf4;
+    --bad:#dc2626;
+    --bad-soft:#fef2f2;
+    --warn:#d97706;
+    --warn-soft:#fffbeb;
+    --num:#047857;
+    --op:#b91c1c;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(15,23,42,.05);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+    margin:0 auto;
+    padding:20px 16px 40px;
+    max-width:980px;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+
+  /* ===== 頁首 ===== */
+  .page-header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:6px 16px;
+    margin-bottom:16px;
+  }
+  .page-header h1{
+    font-size:1.5rem;
+    margin:0;
+    letter-spacing:.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .page-header .subtitle{
+    font-size:.9rem;
+    color:var(--text-muted);
+    margin:0;
+  }
+
+  /* 列印專用工作紙抬頭 */
+  .print-header{
+    display:none;
+    border-bottom:2px solid #222;
+    padding-bottom:10px;
+    margin-bottom:16px;
+  }
+  .print-header h2{margin:0 0 8px;font-size:1.3rem;}
+  .print-meta{display:flex;justify-content:space-between;font-size:.98rem;gap:16px;}
+
+  /* ===== 卡片面板 ===== */
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
+  }
+
+  .control-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    align-items:center;
+  }
+  .control-row + .control-row{
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid #f1f5f9;
+  }
+
+  .field{
+    font-size:.92rem;
+    color:#334155;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-weight:500;
+    transition:opacity .18s;
+  }
+  .field.disabled-hint{opacity:.48;}
+
+  .field input[type=number],
+  .field select{
+    padding:5px 8px;
+    border:1px solid var(--border-strong);
+    border-radius:8px;
+    font:inherit;
+    background:#fff;
+    color:var(--text);
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .field input[type=number]{width:4.4em;text-align:center;}
+  .field input[type=number]:focus,
+  .field select:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+  }
+
+  .check-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 11px;
+    border-radius:999px;
+    border:1px solid var(--border-strong);
+    background:var(--surface-soft);
+    font-size:.9rem;
+    font-weight:500;
+    color:#334155;
+    cursor:pointer;
+    user-select:none;
+    transition:all .15s;
+  }
+  .check-pill:hover{border-color:#94a3b8;}
+  .check-pill input{accent-color:var(--primary);margin:0;cursor:pointer;}
+  .check-pill:has(input:checked){
+    background:var(--primary-soft);
+    border-color:#93c5fd;
+    color:#1e40af;
+  }
+
+  /* ===== 運算符號開關（加減乘除按需剔除） ===== */
+  .ops-group{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+  }
+  .ops-label{
+    font-size:.92rem;
+    font-weight:600;
+    color:#334155;
+    margin-right:2px;
+  }
+  .op-toggle{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 13px;
+    border-radius:999px;
+    border:1.5px solid var(--border-strong);
+    background:#f8fafc;
+    color:#94a3b8;
+    font-size:.92rem;
+    font-weight:700;
+    cursor:pointer;
+    user-select:none;
+    transition:all .16s ease;
+  }
+  .op-toggle input{
+    position:absolute;
+    opacity:0;
+    width:0;
+    height:0;
+  }
+  .op-toggle .op-sym{
+    font-size:1.05rem;
+    line-height:1;
+  }
+  .op-toggle.off{
+    text-decoration:line-through;
+    opacity:.68;
+  }
+  .op-toggle.on{
+    background:#eff6ff;
+    border-color:#3b82f6;
+    color:#1d4ed8;
+    box-shadow:0 1px 3px rgba(37,99,235,.14);
+  }
+  .op-toggle[data-op="+"].on{background:#ecfdf5;border-color:#10b981;color:#047857;}
+  .op-toggle[data-op="-"].on{background:#fff7ed;border-color:#f97316;color:#c2410c;}
+  .op-toggle[data-op="×"].on{background:#eff6ff;border-color:#3b82f6;color:#1d4ed8;}
+  .op-toggle[data-op="÷"].on{background:#faf5ff;border-color:#a855f7;color:#7e22ce;}
+  .op-toggle:hover{transform:translateY(-1px);}
+
+  /* ===== 按鈕列 ===== */
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  button{
+    font:inherit;
+    font-size:.93rem;
+    padding:8px 15px;
+    border:1px solid transparent;
+    border-radius:9px;
+    background:var(--primary);
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:background .15s,transform .1s,border-color .15s;
+  }
+  button:hover{background:var(--primary-hover);}
+  button:active{transform:translateY(1px);}
+  button.secondary{
+    background:#f1f5f9;
+    color:#1e293b;
+    border-color:#e2e8f0;
+  }
+  button.secondary:hover{background:#e2e8f0;}
+
+  /* 狀態提示與得分 */
+  .status-bar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-top:10px;
+    min-height:1.5em;
+  }
+  #score{
+    font-weight:700;
+    font-size:1.02rem;
+    color:var(--ok);
+  }
+  #notice{
+    font-size:.88rem;
+    font-weight:600;
+    color:var(--warn);
+    background:var(--warn-soft);
+    border:1px solid #fde68a;
+    padding:3px 10px;
+    border-radius:8px;
+    display:none;
+  }
+  #notice.show{display:inline-block;}
+
+  /* ===== 題目列表 ===== */
+  #questions{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    margin-bottom:18px;
+  }
+  .q{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    font-size:1.15rem;
+    flex-wrap:wrap;
+    box-shadow:0 1px 3px rgba(15,23,42,.03);
+    transition:border-color .18s,background .18s,box-shadow .18s;
+  }
+  .q:hover{border-color:#cbd5e1;box-shadow:0 3px 10px rgba(15,23,42,.05);}
+  .q.row-ok{border-color:#86efac;background:var(--ok-soft);}
+  .q.row-bad{border-color:#fca5a5;background:var(--bad-soft);}
+
+  .qnum{
+    color:var(--text-muted);
+    background:#f1f5f9;
+    border-radius:7px;
+    min-width:2.1em;
+    padding:2px 6px;
+    text-align:center;
+    font-size:.88rem;
+    font-weight:700;
+  }
+  .expr{
+    display:flex;
+    align-items:center;
+    gap:3px;
+    flex-wrap:wrap;
+  }
+  .numtok{
+    font:inherit;
+    text-align:center;
+    border:1.5px solid transparent;
+    border-radius:7px;
+    background:transparent;
+    padding:2px 3px;
+    color:var(--num);
+    font-weight:700;
+    transition:border-color .15s,background .15s,opacity .15s;
+  }
+  .numtok:hover,.numtok:focus{
+    border-color:#93c5fd;
+    background:#eff6ff;
+    outline:none;
+  }
+  .numtok.invalid{
+    border-color:var(--bad);
+    background:#fef2f2;
+    color:var(--bad);
+  }
+  .numtok.empty-tok{
+    border:1.5px dashed #cbd5e1;
+    background:#f8fafc;
+    min-width:2.4ch;
+  }
+  .optok{
+    font:inherit;
+    font-weight:700;
+    color:var(--op);
+    border:1px solid #e2e8f0;
+    border-radius:7px;
+    padding:1px 3px;
+    background:#fff;
+    cursor:pointer;
+    transition:opacity .15s,border-color .15s;
+  }
+  .optok:hover,.optok:focus{border-color:#fca5a5;outline:none;}
+  .dimmed{opacity:.28;}
+
+  .paren{font-weight:700;color:#475569;padding:0 2px;font-size:1.18rem;}
+  .eq{color:#64748b;font-weight:700;margin:0 2px;}
+
+  .ansinput{
+    font:inherit;
+    width:7.2em;
+    border:none;
+    border-bottom:2px solid #94a3b8;
+    background:transparent;
+    text-align:center;
+    padding:3px 6px;
+    outline:none;
+    font-weight:700;
+    color:#0f172a;
+    transition:border-color .15s;
+  }
+  .ansinput:focus{border-color:var(--primary);}
+
+  .mark{
+    font-weight:800;
+    font-size:1.15rem;
+    min-width:1.5em;
+    text-align:center;
+    margin-left:auto;
+  }
+  .mark.ok{color:var(--ok);}
+  .mark.bad{color:var(--bad);}
+  .mark.err{
+    font-size:.82rem;
+    font-weight:600;
+    color:var(--bad);
+    background:#fee2e2;
+    padding:2px 8px;
+    border-radius:6px;
+  }
+
+  /* ===== 手動輸入 ===== */
+  details.panel summary{
+    cursor:pointer;
+    font-weight:700;
+    color:#1e293b;
+    user-select:none;
+  }
+  details.panel p{font-size:.9rem;color:var(--text-muted);margin:10px 0 8px;}
+  details.panel code{
+    background:#f1f5f9;
+    padding:1px 5px;
+    border-radius:5px;
+    color:#0f172a;
+    font-size:.88em;
+  }
+  textarea{
+    width:100%;
+    font:inherit;
+    padding:10px 12px;
+    border:1px solid var(--border-strong);
+    border-radius:10px;
+    resize:vertical;
+    outline:none;
+  }
+  textarea:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+  }
+
+  /* ===== 答案頁 ===== */
+  #answerSheet{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+  }
+  #answerSheet.hidden{display:none;}
+  #answerSheet h2{
+    margin:0 0 12px;
+    font-size:1.18rem;
+    padding-bottom:10px;
+    border-bottom:2px solid #f1f5f9;
+  }
+  .answer-card{
+    border-bottom:1px dashed #dbe3ee;
+    padding:12px 0 16px;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  .answer-card:last-child{border-bottom:none;padding-bottom:4px;}
+  .answer-card h3{
+    margin:0 0 6px;
+    font-size:.96rem;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .expr-line{
+    font-size:1.08rem;
+    font-weight:700;
+    margin-bottom:10px;
+    color:#1e293b;
+  }
+  .steps-wrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .step-box{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+    padding:8px 12px 10px;
+    max-width:100%;
+    overflow-x:auto;
+  }
+  .step-tag{
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--text-muted);
+    margin-bottom:4px;
+    letter-spacing:.03em;
+  }
+  pre.vertical{
+    font-family:"SFMono-Regular",Consolas,"Courier New","DejaVu Sans Mono",monospace;
+    font-size:1rem;
+    line-height:1.34;
+    white-space:pre;
+    margin:0;
+    color:#0f172a;
+  }
+
+  /* ===== 美化直式格線（統一加寬 0.3 字距，確保進退位與小數點嚴格對齊） ===== */
+  .v-calc{
+    font-family:"SFMono-Regular",Consolas,"Courier New","DejaVu Sans Mono",monospace;
+    font-size:1.05rem;
+    line-height:1.38;
+    color:#0f172a;
+    display:inline-block;
+  }
+  .v-grid{
+    display:grid;
+    grid-template-columns:repeat(var(--cols), 1ch);
+    column-gap:0.3ch;
+    row-gap:1px;
+    align-items:center;
+  }
+  .v-grid.has-note{
+    grid-template-columns:repeat(var(--cols), 1ch) auto;
+  }
+  .v-cell{
+    text-align:center;
+    white-space:nowrap;
+  }
+  .v-cell.op{
+    color:#64748b;
+    font-weight:700;
+  }
+  .v-cell.res{
+    font-weight:700;
+    color:#0f172a;
+  }
+  .v-cell.dot{
+    font-weight:700;
+  }
+  .v-rule{
+    grid-column:1 / span var(--cols);
+    border-bottom:1.8px solid #334155;
+    height:2px;
+    margin:2px 0 3px;
+  }
+  .v-eq-note{
+    grid-column:1 / span var(--cols);
+    text-align:right;
+    font-size:.88em;
+    font-weight:600;
+    color:#475569;
+    letter-spacing:0.15ch;
+    margin-top:2px;
+  }
+  .v-cell.carry-cell{
+    font-size:.76em;
+    font-weight:700;
+    color:#ea580c;
+    line-height:1.15;
+    padding-bottom:1px;
+  }
+  .v-cell.borrow-cell{
+    font-size:.76em;
+    font-weight:700;
+    color:#7c3aed;
+    line-height:1.15;
+    padding-bottom:1px;
+    justify-self:center;
+  }
+  .v-cell.borrow-cell.two-digit{
+    font-size:.72em;
+    letter-spacing:-0.04em;
+  }
+  .v-note-cell{
+    font-size:.74em;
+    color:#64748b;
+    font-weight:600;
+    white-space:nowrap;
+    padding-left:0.45ch;
+    line-height:1.15;
+  }
+  .v-cell.borrowed-digit{
+    text-decoration:line-through;
+    text-decoration-thickness:1.5px;
+    text-decoration-color:#7c3aed;
+    color:#94a3b8;
+  }
+  .v-cell.pad-zero{
+    color:#0284c7;
+    font-weight:700;
+  }
+
+  /* ===== 港式長除法美化樣式（弧形除號 + 實線橫槓 + 拉下位數與餘數標示） ===== */
+  .v-div-note{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-size:.78rem;
+    font-weight:600;
+    color:#4338ca;
+    background:#eef2ff;
+    border:1px solid #c7d2fe;
+    border-radius:6px;
+    padding:2px 8px;
+    margin-bottom:8px;
+    display:inline-block;
+  }
+  .v-div-wrap{
+    display:inline-grid;
+    grid-template-columns:auto 0.62em auto;
+    align-items:stretch;
+  }
+  .v-div-q{
+    grid-column:3;
+    grid-row:1;
+    justify-self:start;
+    display:grid;
+    grid-template-columns:repeat(var(--dcols), 1ch);
+    column-gap:0.3ch;
+    padding:0 0.35em 3px 0.35em;
+    font-weight:700;
+    color:#1d4ed8;
+  }
+  .v-div-divisor{
+    grid-column:1;
+    grid-row:2;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding:2px 0.05ch 2px 0.1ch;
+    font-weight:700;
+    color:#334155;
+    letter-spacing:0.3ch;
+    white-space:nowrap;
+  }
+  .v-div-arc{
+    grid-column:2;
+    grid-row:2;
+    color:#1e293b;
+    overflow:visible;
+  }
+  .v-div-arc svg{
+    display:block;
+    width:100%;
+    height:100%;
+    overflow:visible;
+  }
+  .v-div-dividend{
+    grid-column:3;
+    grid-row:2;
+    justify-self:start;
+    display:grid;
+    grid-template-columns:repeat(var(--dcols), 1ch);
+    column-gap:0.3ch;
+    padding:2px 0.35em 2px 0.35em;
+    border-top:2px solid #1e293b;
+    font-weight:700;
+    color:#0f172a;
+  }
+  .v-div-steps{
+    grid-column:3;
+    grid-row:3;
+    justify-self:start;
+    display:grid;
+    grid-template-columns:repeat(var(--dcols), 1ch) auto;
+    column-gap:0.3ch;
+    row-gap:1px;
+    padding:2px 0.35em 0 0.35em;
+    align-items:center;
+  }
+  .v-div-prod{
+    color:#475569;
+  }
+  .v-div-cur{
+    color:#0f172a;
+    font-weight:600;
+  }
+  .v-div-pulled{
+    color:#0284c7;
+    font-weight:700;
+  }
+  .v-div-bar{
+    border-bottom:1.6px solid #475569;
+    height:2px;
+    margin:2px 0 3px;
+  }
+  .v-div-rem-zero{
+    color:#15803d;
+    font-weight:700;
+  }
+  .v-div-rem-val{
+    color:#b45309;
+    font-weight:700;
+  }
+  .v-div-rem-tag{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-size:.7em;
+    font-weight:700;
+    color:#b45309;
+    background:#fef3c7;
+    border:1px solid #fde68a;
+    border-radius:4px;
+    padding:0 4px;
+    margin-left:0.25ch;
+    line-height:1.35;
+    white-space:nowrap;
+  }
+
+  /* ===== 行動裝置微調 ===== */
+  @media (max-width:600px){
+    body{padding:14px 10px 30px;}
+    .panel{padding:13px 14px;}
+    .q{font-size:1.05rem;padding:9px 10px;}
+    .ansinput{width:6em;}
+  }
+
+  /* ===== 列印樣式 ===== */
+  @media print{
+    body{background:#fff;padding:0;max-width:none;color:#000;}
+    .no-print{display:none !important;}
+    .print-header{display:block;}
+    #questions{gap:6px;margin-bottom:0;}
+    .q{
+      border:none;
+      box-shadow:none;
+      background:#fff !important;
+      padding:6px 0;
+      break-inside:avoid;
+      page-break-inside:avoid;
+    }
+    .qnum{background:transparent;color:#000;padding:0;min-width:1.8em;text-align:left;}
+    .numtok,.optok{
+      background:transparent;
+      border:none;
+      color:#000;
+      appearance:none;
+      -webkit-appearance:none;
+    }
+    .empty-tok,.dimmed{display:none !important;}
+    .ansinput{border-bottom:1px solid #000;color:#000;}
+    .mark{display:none;}
+    #answerSheet{
+      display:block !important;
+      page-break-before:always;
+      border:none;
+      border-radius:0;
+      box-shadow:none;
+      padding:0;
+    }
+    .step-box{background:#fff;border-color:#bbb;}
+    .answer-card h3{color:#000;}
+    .v-cell.carry-cell,.v-note-cell{color:#555;}
+    .v-cell.borrow-cell,.v-cell.pad-zero{color:#333;}
+    .v-cell.borrowed-digit{text-decoration-color:#333;color:#666;}
+    .v-rule,.v-div-dividend,.v-div-bar{border-color:#000;}
+    .v-div-q,.v-div-divisor,.v-div-arc,.v-div-pulled,.v-div-rem-zero,.v-div-rem-val{color:#000;}
+    .v-div-note,.v-div-rem-tag{background:#fff;border-color:#888;color:#333;}
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header no-print">
+  <h1>🧮 四則運算練習</h1>
+  <p class="subtitle">可自訂加減乘除、一位小數、括號與港式直式詳解</p>
+</header>
+
+<!-- 列印專用工作紙抬頭 -->
+<div class="print-header">
+  <h2>四則運算練習紙</h2>
+  <div class="print-meta">
+    <span>姓名：＿＿＿＿＿＿＿＿</span>
+    <span>日期：＿＿＿＿＿＿＿＿</span>
+    <span>得分：＿＿＿／＿＿＿</span>
+  </div>
+</div>
+
+<!-- 控制面板 -->
+<div class="panel no-print">
+  <!-- 第一列：基本出題參數 -->
+  <div class="control-row">
+    <label class="field">題數
+      <input type="number" id="qCount" value="10" min="1" max="20">
+    </label>
+    <label class="field" id="asDigitsWrap">加減位數
+      <select id="asDigits">
+        <option value="2">2 位</option>
+        <option value="3" selected>3 位</option>
+        <option value="4">4 位</option>
+      </select>
+    </label>
+    <label class="field" id="mdDigitsWrap">乘除位數
+      <select id="mdDigits">
+        <option value="1" selected>1 位</option>
+        <option value="2">2 位</option>
+      </select>
+    </label>
+    <label class="check-pill">
+      <input type="checkbox" id="useParen" checked> 含單層括號
+    </label>
+    <label class="check-pill">
+      <input type="checkbox" id="useDecimal"> 含一位小數
+    </label>
+    <label class="field disabled-hint" id="decCountWrap">小數次數
+      <select id="decCount">
+        <option value="1" selected>1 次</option>
+        <option value="2">2 次</option>
+        <option value="3">3 次</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- 第二列：限制加減乘除（可按需剔除） -->
+  <div class="control-row">
+    <div class="ops-group" role="group" aria-label="選擇包含的運算符號">
+      <span class="ops-label">包含運算：</span>
+      <label class="op-toggle on" data-op="+">
+        <input type="checkbox" class="op-filter" value="+" checked>
+        <span class="op-sym">＋</span> 加
+      </label>
+      <label class="op-toggle on" data-op="-">
+        <input type="checkbox" class="op-filter" value="-" checked>
+        <span class="op-sym">－</span> 減
+      </label>
+      <label class="op-toggle on" data-op="×">
+        <input type="checkbox" class="op-filter" value="×" checked>
+        <span class="op-sym">×</span> 乘
+      </label>
+      <label class="op-toggle on" data-op="÷">
+        <input type="checkbox" class="op-filter" value="÷" checked>
+        <span class="op-sym">÷</span> 除
+      </label>
+    </div>
+  </div>
+
+  <!-- 第三列：操作按鈕 -->
+  <div class="control-row actions">
+    <button id="genBtn">🎲 出題</button>
+    <button id="checkBtn" class="secondary">✔ 對答案</button>
+    <button id="clearBtn" class="secondary">↺ 清空作答</button>
+    <button id="ansBtn" class="secondary">📐 顯示／隱藏直式答案</button>
+    <button id="printBtn" class="secondary">🖨 列印（含直式答案）</button>
+  </div>
+
+  <div class="status-bar">
+    <div id="score"></div>
+    <div id="notice" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- 題目區 -->
+<main id="questions"></main>
+
+<!-- 手動輸入區 -->
+<details class="panel no-print">
+  <summary>✍️ 手動輸入題目（每行一題）</summary>
+  <p>支援半形／全形數字與 <code>+ - × ÷ * /</code>、小數點及括號，例如：<code>(12.3+4.5)×6</code>、<code>1234÷5</code>（單步整數除不盡會顯示餘數直式，作答可填 <code>246...4</code>、<code>246餘4</code> 或小數）。直接留空題目中的某個數字會自動略過該項。</p>
+  <textarea id="manualInput" rows="5" placeholder="(123+45)×6&#10;89.5-23.4&#10;1234÷5"></textarea>
+  <div style="margin-top:10px;"><button id="loadManual">載入題目</button></div>
+</details>
+
+<!-- 答案及直式區 -->
+<section id="answerSheet" class="hidden">
+  <h2>答案及港式直式計算</h2>
+  <div id="answers"></div>
+</section>
+
+<script>
+/* =========================================================
+   1. 基本工具：浮點數清理、提示訊息、嚴格解析與求值
+   ========================================================= */
+
+let noticeTimer = null;
+function showNotice(msg){
+  const el = document.getElementById('notice');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* 消除二進制浮點數誤差（例如 0.1 + 0.2 = 0.30000000000000004） */
+function cleanFloat(n){
+  if(!Number.isFinite(n)) return NaN;
+  const r = Number(n.toFixed(10));
+  return Object.is(r, -0) ? 0 : r;
+}
+
+function fmtNum(n){
+  if(!Number.isFinite(n)) return '?';
+  const c = cleanFloat(n);
+  return Number.isInteger(c) ? String(c) : String(Number(c.toFixed(6)));
+}
+
+function decPlaces(n){
+  const s = fmtNum(n);
+  const idx = s.indexOf('.');
+  return idx === -1 ? 0 : s.length - idx - 1;
+}
+
+function parseToTree(tokens){
+  if(!tokens || tokens.length === 0) throw new Error('Empty expression');
+  let i = 0;
+
+  function parseExpr(){
+    let left = parseTerm();
+    while(i < tokens.length && tokens[i].t === 'op' &&
+          (tokens[i].v === '+' || tokens[i].v === '-')){
+      const op = tokens[i++].v;
+      const right = parseTerm();
+      left = {op, l:left, r:right};
+    }
+    return left;
+  }
+
+  function parseTerm(){
+    let left = parseFactor();
+    while(i < tokens.length && tokens[i].t === 'op' &&
+          (tokens[i].v === '×' || tokens[i].v === '÷')){
+      const op = tokens[i++].v;
+      const right = parseFactor();
+      left = {op, l:left, r:right};
+    }
+    return left;
+  }
+
+  function parseFactor(){
+    const tk = tokens[i];
+    if(!tk) throw new Error('Unexpected end of expression');
+
+    if(tk.t === 'op' && tk.v === '-'){
+      i++;
+      const inner = parseFactor();
+      return {op:'-', l:{v:0}, r:inner};
+    }
+
+    if(tk.t === '('){
+      i++;
+      const node = parseExpr();
+      if(!tokens[i] || tokens[i].t !== ')') throw new Error('Missing closing parenthesis');
+      i++;
+      return node;
+    }
+
+    if(tk.t !== 'num') throw new Error('Expected number');
+    const s = String(tk.v).trim();
+    if(s === '' || !/^\d+(\.\d+)?$/.test(s)) throw new Error('Invalid number');
+    i++;
+    return {v: Number(s)};
+  }
+
+  const root = parseExpr();
+  if(i !== tokens.length) throw new Error('Unexpected trailing token');
+  return root;
+}
+
+function evalTree(node){
+  if(node.v !== undefined) return cleanFloat(node.v);
+  const a = evalTree(node.l);
+  const b = evalTree(node.r);
+  switch(node.op){
+    case '+': return cleanFloat(a + b);
+    case '-': return cleanFloat(a - b);
+    case '×': return cleanFloat(a * b);
+    case '÷': return b === 0 ? NaN : cleanFloat(a / b);
+  }
+  return NaN;
+}
+
+/* 檢查是否為單一步驟的整數有餘數除法（如 1234÷5） */
+function getSingleDivRemainder(tree){
+  if(!tree || tree.op !== '÷') return null;
+  if(tree.l.v === undefined || tree.r.v === undefined) return null;
+  const a = tree.l.v, b = tree.r.v;
+  if(!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b <= 0) return null;
+  if(a % b === 0) return null;
+  return {q: Math.floor(a / b), r: a % b};
+}
+
+/* 嚴格檢查：全部中間結果非負；純整數模式要求整除；小數模式要求有限小數（最多 2 位小數） */
+function strictCheck(node, allowDecimal){
+  if(node.v !== undefined) return cleanFloat(node.v);
+  const a = strictCheck(node.l, allowDecimal);
+  const b = strictCheck(node.r, allowDecimal);
+  if(a === null || b === null) return null;
+  let r;
+  switch(node.op){
+    case '+': r = cleanFloat(a + b); break;
+    case '-': r = cleanFloat(a - b); break;
+    case '×': r = cleanFloat(a * b); break;
+    case '÷':
+      if(b === 0) return null;
+      if(!allowDecimal && a % b !== 0) return null;
+      r = cleanFloat(a / b);
+      break;
+    default:
+      return null;
+  }
+  if(!Number.isFinite(r) || r < 0) return null;
+  if(allowDecimal){
+    if(decPlaces(r) > 2) return null;
+  }else{
+    if(!Number.isInteger(r)) return null;
+  }
+  return r;
+}
+
+function tokensToString(tokens){
+  let s = '';
+  tokens.forEach(t => {
+    if(t.t === 'op') s += ' ' + t.v + ' ';
+    else s += t.v;
+  });
+  return s.replace(/\s+/g,' ').trim();
+}
+
+/* =========================================================
+   2. 出題（支援加減乘除按需剔除、一位小數與指定小數次數）
+   ========================================================= */
+
+function randInt(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+function pickRandom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+/* 產生一位小數（乘除優先用較易算的尾數，避免 0.0） */
+function makeDecimalVal(intPart, isMD){
+  const tenths = isMD
+    ? (intPart === 0 ? pickRandom([2, 4, 5, 6, 8]) : pickRandom([2, 4, 5, 6, 8, 1, 3, 7, 9]))
+    : randInt(1, 9);
+  return cleanFloat(intPart + tenths / 10);
+}
+
+/* 專為「只選除法（÷）」設計的反向建構出題器，確保 100% 整除／有限小數且符合指定小數次數 */
+function generateDivOnly(cfg){
+  const loM = cfg.mDigits === 1 ? 2 : 10;
+  const hiM = cfg.mDigits === 1 ? 9 : 25;
+  const maxDividend = cfg.mDigits === 1 ? 2000 : 12000;
+  const targetDec = cfg.useDecimal ? Math.min(cfg.decCount || 1, 3) : 0;
+
+  for(let attempt = 0; attempt < 2500; attempt++){
+    const useNestedParen = cfg.useParen && Math.random() < 0.45;
+    let toks = null;
+
+    if(useNestedParen){
+      /* A ÷ (B ÷ C)：先選 C、內商 innerQ、最終商 finalQ */
+      const cMakeDec = targetDec > 0 && Math.random() < (targetDec === 3 ? 0.85 : 0.45);
+      const c = cMakeDec
+        ? makeDecimalVal(cfg.mDigits === 1 ? randInt(0, 5) : randInt(1, 9), true)
+        : randInt(loM, hiM);
+      const innerQ = (targetDec > 0 && Math.random() < 0.45)
+        ? pickRandom([2, 3, 4, 5, 6, 8, 10])
+        : randInt(2, cfg.mDigits === 1 ? 9 : 15);
+      const b = cleanFloat(c * innerQ);
+      let finalQ = randInt(2, cfg.mDigits === 1 ? 18 : 12);
+      if(targetDec > 0 && Math.random() < 0.65){
+        finalQ = makeDecimalVal(randInt(1, 12), false);
+      }
+      const a = cleanFloat(finalQ * innerQ);
+
+      if(a > maxDividend || b > maxDividend || a <= 0 || b <= 0) continue;
+      const vals = [a, b, c];
+      if(cfg.useDecimal){
+        if(vals.some(x => decPlaces(x) > 1)) continue;
+        if(vals.filter(x => !Number.isInteger(x)).length !== targetDec) continue;
+      }
+      toks = [
+        {t:'num', v:a}, {t:'op', v:'÷'},
+        {t:'(', v:'('}, {t:'num', v:b}, {t:'op', v:'÷'}, {t:'num', v:c}, {t:')', v:')'}
+      ];
+    }else{
+      /* 連除 A ÷ d1 ÷ d2（或含括號 (A ÷ d1) ÷ d2） */
+      const d1DecProb = targetDec === 3 ? 0.92 : (targetDec === 2 ? 0.6 : 0.35);
+      const d2DecProb = targetDec === 3 ? 0.92 : (targetDec === 2 ? 0.6 : 0.35);
+      const d1 = targetDec > 0 && Math.random() < d1DecProb
+        ? makeDecimalVal(cfg.mDigits === 1 ? randInt(0, 5) : randInt(1, 9), true)
+        : randInt(loM, hiM);
+      const d2 = targetDec > 0 && Math.random() < d2DecProb
+        ? makeDecimalVal(cfg.mDigits === 1 ? randInt(0, 5) : randInt(1, 9), true)
+        : randInt(loM, hiM);
+
+      let q;
+      if(targetDec === 3 && !Number.isInteger(d2)){
+        q = pickRandom([2, 4, 5, 6, 8, 10]);
+      }else if(targetDec > 0 && Math.random() < 0.55){
+        q = makeDecimalVal(randInt(1, 10), false);
+      }else{
+        q = randInt(2, cfg.mDigits === 1 ? 15 : 10);
+      }
+
+      const mid = cleanFloat(q * d2);
+      const a = cleanFloat(mid * d1);
+
+      if(a > maxDividend || a <= 0 || mid <= 0) continue;
+      const vals = [a, d1, d2];
+      if(cfg.useDecimal){
+        if(vals.some(x => decPlaces(x) > 1)) continue;
+        if(vals.filter(x => !Number.isInteger(x)).length !== targetDec) continue;
+      }
+
+      if(cfg.useParen && Math.random() < 0.35){
+        toks = [
+          {t:'(', v:'('}, {t:'num', v:a}, {t:'op', v:'÷'}, {t:'num', v:d1}, {t:')', v:')'},
+          {t:'op', v:'÷'}, {t:'num', v:d2}
+        ];
+      }else{
+        toks = [
+          {t:'num', v:a}, {t:'op', v:'÷'}, {t:'num', v:d1}, {t:'op', v:'÷'}, {t:'num', v:d2}
+        ];
+      }
+    }
+
+    try{
+      const tree = parseToTree(toks.slice());
+      const v = strictCheck(tree, cfg.useDecimal);
+      if(v !== null && v <= 200000) return toks;
+    }catch(e){}
+  }
+  return null;
+}
+
+/* 保險後備題：嚴格遵守使用者選擇的運算符號、小數設定與小數出現次數 */
+function buildFallback(cfg){
+  const ops = cfg.allowedOps;
+  const has = op => ops.includes(op);
+  const dc = Math.min(3, Math.max(1, cfg.decCount || 1));
+
+  if(ops.length === 1){
+    const op = ops[0];
+    if(op === '+'){
+      if(!cfg.useDecimal) return [{t:'num',v:125},{t:'op',v:'+'},{t:'num',v:240},{t:'op',v:'+'},{t:'num',v:35}];
+      if(dc === 1) return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:34},{t:'op',v:'+'},{t:'num',v:8}];
+      if(dc === 2) return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:34.2},{t:'op',v:'+'},{t:'num',v:8}];
+      return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:34.2},{t:'op',v:'+'},{t:'num',v:8.3}];
+    }
+    if(op === '-'){
+      if(!cfg.useDecimal) return [{t:'num',v:540},{t:'op',v:'-'},{t:'num',v:180},{t:'op',v:'-'},{t:'num',v:95}];
+      if(dc === 1) return [{t:'num',v:85.6},{t:'op',v:'-'},{t:'num',v:24},{t:'op',v:'-'},{t:'num',v:11}];
+      if(dc === 2) return [{t:'num',v:85.6},{t:'op',v:'-'},{t:'num',v:24.2},{t:'op',v:'-'},{t:'num',v:11}];
+      return [{t:'num',v:85.6},{t:'op',v:'-'},{t:'num',v:24.2},{t:'op',v:'-'},{t:'num',v:11.4}];
+    }
+    if(op === '×'){
+      if(!cfg.useDecimal) return [{t:'num',v:12},{t:'op',v:'×'},{t:'num',v:5},{t:'op',v:'×'},{t:'num',v:4}];
+      if(dc === 1) return [{t:'num',v:4.5},{t:'op',v:'×'},{t:'num',v:2},{t:'op',v:'×'},{t:'num',v:3}];
+      if(dc === 2) return [{t:'num',v:4.5},{t:'op',v:'×'},{t:'num',v:2.4},{t:'op',v:'×'},{t:'num',v:3}];
+      return [{t:'num',v:2.5},{t:'op',v:'×'},{t:'num',v:1.2},{t:'op',v:'×'},{t:'num',v:3.4}];
+    }
+    if(!cfg.useDecimal) return [{t:'num',v:144},{t:'op',v:'÷'},{t:'num',v:6},{t:'op',v:'÷'},{t:'num',v:4}];
+    if(dc === 1) return [{t:'num',v:28.8},{t:'op',v:'÷'},{t:'num',v:4},{t:'op',v:'÷'},{t:'num',v:3}];
+    if(dc === 2) return [{t:'num',v:14.4},{t:'op',v:'÷'},{t:'num',v:1.2},{t:'op',v:'÷'},{t:'num',v:3}];
+    return [{t:'num',v:8.4},{t:'op',v:'÷'},{t:'num',v:1.4},{t:'op',v:'÷'},{t:'num',v:1.2}];
+  }
+
+  /* 多種運算的後備題 */
+  if(has('+') && has('×')){
+    if(!cfg.useDecimal) return [{t:'num',v:123},{t:'op',v:'+'},{t:'num',v:45},{t:'op',v:'×'},{t:'num',v:6}];
+    if(dc === 1) return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:3},{t:'op',v:'×'},{t:'num',v:2}];
+    if(dc === 2) return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:3.4},{t:'op',v:'×'},{t:'num',v:2}];
+    return [{t:'num',v:12.5},{t:'op',v:'+'},{t:'num',v:3.4},{t:'op',v:'×'},{t:'num',v:1.5}];
+  }
+  if(has('+') && has('-')){
+    if(!cfg.useDecimal) return [{t:'num',v:345},{t:'op',v:'+'},{t:'num',v:128},{t:'op',v:'-'},{t:'num',v:173}];
+    if(dc === 1) return [{t:'num',v:54.6},{t:'op',v:'+'},{t:'num',v:18},{t:'op',v:'-'},{t:'num',v:22}];
+    if(dc === 2) return [{t:'num',v:54.6},{t:'op',v:'+'},{t:'num',v:18.4},{t:'op',v:'-'},{t:'num',v:22}];
+    return [{t:'num',v:54.6},{t:'op',v:'+'},{t:'num',v:18.4},{t:'op',v:'-'},{t:'num',v:22.5}];
+  }
+  if(has('×') && has('÷')){
+    if(!cfg.useDecimal) return [{t:'num',v:48},{t:'op',v:'÷'},{t:'num',v:6},{t:'op',v:'×'},{t:'num',v:7}];
+    if(dc === 1) return [{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:3},{t:'op',v:'×'},{t:'num',v:4}];
+    if(dc === 2) return [{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:1.5},{t:'op',v:'×'},{t:'num',v:4}];
+    return [{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:1.5},{t:'op',v:'×'},{t:'num',v:2.5}];
+  }
+  if(has('-') && has('×')){
+    if(!cfg.useDecimal) return [{t:'num',v:120},{t:'op',v:'-'},{t:'num',v:12},{t:'op',v:'×'},{t:'num',v:6}];
+    if(dc === 1) return [{t:'num',v:50},{t:'op',v:'-'},{t:'num',v:3.5},{t:'op',v:'×'},{t:'num',v:4}];
+    if(dc === 2) return [{t:'num',v:50.5},{t:'op',v:'-'},{t:'num',v:3.5},{t:'op',v:'×'},{t:'num',v:4}];
+    return [{t:'num',v:50.5},{t:'op',v:'-'},{t:'num',v:3.5},{t:'op',v:'×'},{t:'num',v:2.4}];
+  }
+  if(has('-') && has('÷')){
+    if(!cfg.useDecimal) return [{t:'num',v:80},{t:'op',v:'-'},{t:'num',v:48},{t:'op',v:'÷'},{t:'num',v:6}];
+    if(dc === 1) return [{t:'num',v:50},{t:'op',v:'-'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:3}];
+    if(dc === 2) return [{t:'num',v:50.5},{t:'op',v:'-'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:3}];
+    return [{t:'num',v:50.5},{t:'op',v:'-'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:1.5}];
+  }
+  if(!cfg.useDecimal) return [{t:'num',v:72},{t:'op',v:'+'},{t:'num',v:48},{t:'op',v:'÷'},{t:'num',v:6}];
+  if(dc === 1) return [{t:'num',v:20},{t:'op',v:'+'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:3}];
+  if(dc === 2) return [{t:'num',v:20.5},{t:'op',v:'+'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:3}];
+  return [{t:'num',v:20.5},{t:'op',v:'+'},{t:'num',v:12.6},{t:'op',v:'÷'},{t:'num',v:1.5}];
+}
+
+function generateOne(cfg){
+  const allowed = cfg.allowedOps;
+  if(!allowed || allowed.length === 0) return buildFallback({allowedOps:['+'], useDecimal:cfg.useDecimal, decCount:cfg.decCount});
+
+  /* 情況 1：僅選「除法」時使用專用反向建構，避免隨機碰撞失敗 */
+  if(allowed.length === 1 && allowed[0] === '÷'){
+    const divToks = generateDivOnly(cfg);
+    if(divToks) return divToks;
+    return buildFallback(cfg);
+  }
+
+  /* 決定項數：若只選「乘法」且乘數為 2 位，3 個數（2 次乘法）大小更適中 */
+  const onlyMul = allowed.length === 1 && allowed[0] === '×';
+  const onlySub = allowed.length === 1 && allowed[0] === '-';
+  const termCount = (onlyMul && cfg.mDigits >= 2) ? 3 : 4;
+  const opCount = termCount - 1;
+  const targetDecCount = cfg.useDecimal ? Math.min(cfg.decCount || 1, termCount) : 0;
+
+  for(let attempt = 0; attempt < 4000; attempt++){
+    const ops = [];
+    for(let k = 0; k < opCount; k++){
+      ops.push(pickRandom(allowed));
+    }
+
+    /* 依設定的小數出現次數（1～3 次），隨機指定哪幾個位置生成一位小數 */
+    const decIndices = new Set();
+    if(targetDecCount > 0){
+      const pool = [];
+      for(let k = 0; k < termCount; k++) pool.push(k);
+      for(let c = 0; c < targetDecCount; c++){
+        const pick = Math.floor(Math.random() * pool.length);
+        decIndices.add(pool.splice(pick, 1)[0]);
+      }
+    }
+
+    const nums = [];
+    for(let k = 0; k < termCount; k++){
+      const leftOp  = k > 0 ? ops[k-1] : null;
+      const rightOp = k < opCount ? ops[k] : null;
+      const isMD = leftOp === '×' || leftOp === '÷' ||
+                   rightOp === '×' || rightOp === '÷';
+      const makeDec = decIndices.has(k);
+
+      if(isMD){
+        const lo = cfg.mDigits === 1 ? (makeDec ? 0 : 2) : Math.pow(10, cfg.mDigits - 1);
+        const hi = Math.pow(10, cfg.mDigits) - 1;
+        const intPart = randInt(lo, hi);
+        nums.push(makeDec ? makeDecimalVal(intPart, true) : intPart);
+      }else{
+        let lo = Math.pow(10, cfg.aDigits - 1);
+        let hi = Math.pow(10, cfg.aDigits) - 1;
+        /* 純減法時，讓第一個被減數偏大、其餘減數偏小，大幅提高合法率 */
+        if(onlySub){
+          if(k === 0){ lo = Math.floor(hi * 0.55); }
+          else{ hi = Math.max(lo, Math.floor(hi * 0.35)); }
+        }
+        const intPart = randInt(lo, hi);
+        nums.push(makeDec ? makeDecimalVal(intPart, false) : intPart);
+      }
+    }
+
+    /* 括號位置（單層，最多一對） */
+    let pStart = -1, pEnd = -1;
+    if(cfg.useParen && termCount >= 3 && Math.random() < 0.5){
+      const pairs = termCount === 4
+        ? [[0,1],[1,2],[2,3],[0,2],[1,3]]
+        : [[0,1],[1,2]];
+      const p = pickRandom(pairs);
+      pStart = p[0]; pEnd = p[1];
+    }
+
+    /* 針對獨立除法步驟（非括號邊界）做整除強化，同時維持該位置是否為小數 */
+    for(let k = opCount - 1; k >= 0; k--){
+      if(ops[k] === '÷' && k !== pEnd && (k + 1) !== pStart && (k === 0 || ops[k-1] !== '÷')){
+        if(Math.random() < 0.72){
+          const divisor = nums[k + 1];
+          const wantDec = decIndices.has(k);
+          const maxQ = cfg.mDigits === 1 ? 15 : 9;
+          let q;
+          if(cfg.useDecimal){
+            if(wantDec && Number.isInteger(divisor)){
+              q = makeDecimalVal(randInt(1, 9), false);
+            }else if(!wantDec && !Number.isInteger(divisor)){
+              q = pickRandom([2, 4, 5, 6, 8, 10]);
+            }else{
+              q = randInt(2, maxQ);
+            }
+          }else{
+            q = randInt(2, maxQ);
+          }
+          const candidate = cleanFloat(divisor * q);
+          if(candidate > 0 && candidate <= 9999 &&
+             (cfg.useDecimal
+               ? decPlaces(candidate) === (wantDec ? 1 : 0)
+               : Number.isInteger(candidate))){
+            nums[k] = candidate;
+          }
+        }
+      }
+    }
+
+    /* 開啟一位小數模式時：嚴格檢查小數出現次數等於設定值，且最多一位小數 */
+    if(cfg.useDecimal){
+      const actualDecCount = nums.filter(n => !Number.isInteger(n)).length;
+      if(actualDecCount !== targetDecCount) continue;
+      if(nums.some(n => decPlaces(n) > 1)) continue;
+    }
+
+    const toks = [];
+    for(let k = 0; k < termCount; k++){
+      if(k === pStart) toks.push({t:'(', v:'('});
+      toks.push({t:'num', v:nums[k]});
+      if(k === pEnd) toks.push({t:')', v:')'});
+      if(k < opCount) toks.push({t:'op', v:ops[k]});
+    }
+
+    try{
+      const tree = parseToTree(toks.slice());
+      const v = strictCheck(tree, cfg.useDecimal);
+      if(v === null || v > 200000) continue;
+      if(toks.filter(t => t.t === 'num').every(t => t.v === 1)) continue;
+      return toks;
+    }catch(e){ /* 重試 */ }
+  }
+
+  return buildFallback(cfg);
+}
+
+/* =========================================================
+   3. 題目資料、渲染與即時編輯同步
+   ========================================================= */
+
+let questions = [];
+
+function makeQuestion(tokens){
+  let tree = null, answer = null;
+  try{
+    tree = parseToTree(tokens.slice());
+    answer = evalTree(tree);
+    if(!Number.isFinite(answer)) answer = null;
+  }catch(e){
+    tree = null; answer = null;
+  }
+  return {tokens, tree, answer, userAnswer:''};
+}
+
+function renderQuestions(){
+  const container = document.getElementById('questions');
+  container.innerHTML = '';
+
+  questions.forEach((q, idx) => {
+    const row = document.createElement('div');
+    row.className = 'q';
+    row.dataset.idx = idx;
+
+    const qnum = document.createElement('span');
+    qnum.className = 'qnum';
+    qnum.textContent = idx + 1;
+    row.appendChild(qnum);
+
+    const expr = document.createElement('span');
+    expr.className = 'expr';
+
+    q.tokens.forEach(tk => {
+      if(tk.t === 'num'){
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.inputMode = 'decimal';
+        inp.className = 'tok numtok';
+        inp.value = tk.v;
+        inp.style.width = (Math.max(1, String(tk.v).length) + 1.2) + 'ch';
+        inp.addEventListener('input', () => {
+          inp.style.width = (Math.max(1, inp.value.length) + 1.2) + 'ch';
+          syncQuestion(idx);
+        });
+        expr.appendChild(inp);
+      }else if(tk.t === 'op'){
+        const sel = document.createElement('select');
+        sel.className = 'tok optok';
+        sel.setAttribute('aria-label', '運算符號');
+        ['+','-','×','÷'].forEach(o => {
+          const opt = document.createElement('option');
+          opt.value = o; opt.textContent = o;
+          if(o === tk.v) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => syncQuestion(idx));
+        expr.appendChild(sel);
+      }else{
+        const sp = document.createElement('span');
+        sp.className = 'tok paren';
+        sp.textContent = tk.v;
+        expr.appendChild(sp);
+      }
+    });
+    row.appendChild(expr);
+
+    const eq = document.createElement('span');
+    eq.className = 'eq';
+    eq.textContent = '=';
+    row.appendChild(eq);
+
+    const ansInp = document.createElement('input');
+    ansInp.type = 'text';
+    ansInp.className = 'ansinput';
+    ansInp.placeholder = '?';
+    ansInp.value = q.userAnswer || '';
+    ansInp.addEventListener('input', () => {
+      q.userAnswer = ansInp.value;
+      row.classList.remove('row-ok', 'row-bad');
+      const mk = row.querySelector('.mark');
+      if(mk && !mk.classList.contains('err')){ mk.textContent = ''; mk.className = 'mark'; }
+    });
+    ansInp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        const nextRow = document.querySelector('.q[data-idx="' + (idx + 1) + '"] .ansinput');
+        if(nextRow) nextRow.focus();
+        else checkAnswers();
+      }
+    });
+    row.appendChild(ansInp);
+
+    const mark = document.createElement('span');
+    mark.className = 'mark';
+    if(q.answer === null){
+      mark.textContent = '格式有誤';
+      mark.className = 'mark err';
+    }
+    row.appendChild(mark);
+
+    container.appendChild(row);
+  });
+}
+
+/* 清理留空數字、空括號與孤立運算符，同時標記被略過的 DOM 索引以供視覺與列印淡化 */
+function cleanTokensWithSkip(raw){
+  let list = raw.map((tk, i) => ({...tk, srcIdx: i}));
+  let changed = true;
+
+  while(changed){
+    changed = false;
+    const next = [];
+    for(let k = 0; k < list.length; k++){
+      const tk = list[k];
+
+      if(tk.t === 'num' && tk.v === ''){
+        if(next.length && next[next.length - 1].t === 'op'){
+          next.pop();
+        }else if(list[k + 1] && list[k + 1].t === 'op'){
+          k++;
+        }
+        changed = true;
+        continue;
+      }
+
+      if(tk.t === '(' && list[k + 1] && list[k + 1].t === ')'){
+        if(next.length && next[next.length - 1].t === 'op'){
+          next.pop();
+        }else if(list[k + 2] && list[k + 2].t === 'op'){
+          k++;
+        }
+        k++;
+        changed = true;
+        continue;
+      }
+
+      next.push(tk);
+    }
+
+    const trimmed = [];
+    for(let k = 0; k < next.length; k++){
+      const tk = next[k];
+      const prev = trimmed[trimmed.length - 1];
+      const after = next[k + 1];
+      if(tk.t === 'op'){
+        if(!prev || prev.t === '(' || !after || after.t === ')'){
+          changed = true;
+          continue;
+        }
+      }
+      trimmed.push(tk);
+    }
+    list = trimmed;
+  }
+
+  const keptSet = new Set(list.map(item => item.srcIdx));
+  return {
+    cleaned: list.map(({t, v}) => ({t, v})),
+    keptSet
+  };
+}
+
+/* 讀取 DOM → 更新資料（標記無效／略過項並同步已展開的答案頁） */
+function syncQuestion(idx){
+  const q = questions[idx];
+  const row = document.querySelector('.q[data-idx="' + idx + '"]');
+  if(!row) return;
+
+  const domEls = Array.from(row.querySelectorAll('.tok'));
+  const raw = domEls.map(el => {
+    if(el.classList.contains('paren')){
+      return {t: el.textContent, v: el.textContent};
+    }else if(el.tagName === 'SELECT'){
+      return {t:'op', v: el.value};
+    }else{
+      const val = normalizeDigits(el.value.trim());
+      el.classList.toggle('empty-tok', val === '');
+      el.classList.toggle('invalid', val !== '' && !/^\d+(\.\d+)?$/.test(val));
+      return {t:'num', v: val};
+    }
+  });
+
+  const {cleaned, keptSet} = cleanTokensWithSkip(raw);
+  domEls.forEach((el, i) => {
+    const isSkipped = !keptSet.has(i);
+    el.classList.toggle('dimmed', isSkipped && !el.classList.contains('empty-tok'));
+  });
+
+  q.tokens = cleaned;
+
+  try{
+    q.tree = parseToTree(cleaned.slice());
+    q.answer = evalTree(q.tree);
+    if(!Number.isFinite(q.answer)) q.answer = null;
+  }catch(e){
+    q.tree = null; q.answer = null;
+  }
+
+  row.classList.remove('row-ok', 'row-bad');
+  const mk = row.querySelector('.mark');
+  if(mk){
+    if(q.answer === null){
+      mk.textContent = '格式有誤';
+      mk.className = 'mark err';
+    }else{
+      mk.textContent = '';
+      mk.className = 'mark';
+    }
+  }
+
+  const sheet = document.getElementById('answerSheet');
+  if(sheet && !sheet.classList.contains('hidden')){
+    renderAnswers();
+  }
+}
+
+/* =========================================================
+   4. 對答案 & 清空作答
+   ========================================================= */
+
+function checkAnswers(){
+  let correct = 0, total = 0;
+  questions.forEach((q, idx) => {
+    const row = document.querySelector('.q[data-idx="' + idx + '"]');
+    if(!row) return;
+    const mark = row.querySelector('.mark');
+    const ansInp = row.querySelector('.ansinput');
+
+    row.classList.remove('row-ok', 'row-bad');
+
+    if(q.answer === null || !Number.isFinite(q.answer)){
+      mark.textContent = '格式有誤';
+      mark.className = 'mark err';
+      return;
+    }
+
+    total++;
+    const txt = normalizeDigits((ansInp.value || '').trim());
+    let ok = false;
+
+    const divRem = getSingleDivRemainder(q.tree);
+    if(divRem){
+      const m = txt.match(/^(\d+)\s*(?:\.{2,3}|…|餘|余|[rR])\s*(\d+)$/);
+      if(m && Number(m[1]) === divRem.q && Number(m[2]) === divRem.r){
+        ok = true;
+      }
+    }
+
+    if(!ok && txt !== '' && /^-?\d+(\.\d+)?$/.test(txt)){
+      const num = Number(txt);
+      if(Math.abs(num - q.answer) < 1e-6) ok = true;
+    }
+
+    if(ok){
+      correct++;
+      mark.textContent = '✓';
+      mark.className = 'mark ok';
+      row.classList.add('row-ok');
+    }else{
+      mark.textContent = '✗';
+      mark.className = 'mark bad';
+      row.classList.add('row-bad');
+    }
+  });
+
+  document.getElementById('score').textContent =
+    total ? ('得分：' + correct + ' / ' + total + (correct === total ? '　🎉 全部正確！' : '')) : '';
+}
+
+function clearAnswers(){
+  questions.forEach((q, idx) => {
+    q.userAnswer = '';
+    const row = document.querySelector('.q[data-idx="' + idx + '"]');
+    if(!row) return;
+    const ansInp = row.querySelector('.ansinput');
+    if(ansInp) ansInp.value = '';
+    row.classList.remove('row-ok', 'row-bad');
+    const mk = row.querySelector('.mark');
+    if(mk && !mk.classList.contains('err')){
+      mk.textContent = '';
+      mk.className = 'mark';
+    }
+  });
+  document.getElementById('score').textContent = '';
+}
+
+/* =========================================================
+   5. 直式計算（港式：含加減進退位、先乘高位補零及進位、長除法）
+   ========================================================= */
+
+function collectSteps(node, out){
+  if(node.v !== undefined) return cleanFloat(node.v);
+  const a = collectSteps(node.l, out);
+  const b = collectSteps(node.r, out);
+  let r;
+  switch(node.op){
+    case '+': r = cleanFloat(a + b); break;
+    case '-': r = cleanFloat(a - b); break;
+    case '×': r = cleanFloat(a * b); break;
+    case '÷': r = b === 0 ? NaN : cleanFloat(a / b); break;
+  }
+  out.push({op: node.op, a, b, r});
+  return r;
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/* 計算單一乘數位 d 乘以被乘數 sa 時的各欄進位 */
+function computeMulCarries(sa, d){
+  const digitIndices = [];
+  for(let i = 0; i < sa.length; i++){
+    if(sa[i] >= '0' && sa[i] <= '9') digitIndices.push(i);
+  }
+  const carries = new Array(sa.length).fill(0);
+  let carry = 0;
+  for(let idx = digitIndices.length - 1; idx >= 0; idx--){
+    const pos = digitIndices[idx];
+    const prod = Number(sa[pos]) * d + carry;
+    carry = Math.floor(prod / 10);
+    if(carry > 0 && idx > 0){
+      carries[digitIndices[idx - 1]] = carry;
+    }
+  }
+  return carries;
+}
+
+/* 直式加減法（0.3ch 字距格線對齊、自動對齊小數點，含進位與退位標記） */
+function vAddSub(a, b, op){
+  if(!Number.isFinite(a) || !Number.isFinite(b)) return '';
+  const r = cleanFloat(op === '+' ? a + b : a - b);
+  if(a < 0 || b < 0 || r < 0){
+    return fmtNum(a) + ' ' + op + ' ' + fmtNum(b) + ' = ' + fmtNum(r);
+  }
+
+  const d = Math.max(decPlaces(a), decPlaces(b), decPlaces(r));
+  const sa = d > 0 ? a.toFixed(d) : String(a);
+  const sb = d > 0 ? b.toFixed(d) : String(b);
+  const sr = d > 0 ? r.toFixed(d) : String(r);
+  const srClean = fmtNum(r);
+
+  const w = Math.max(sa.length, sb.length, sr.length);
+  const cols = w + 2;
+  const pa = sa.padStart(w, ' ');
+  const pb = sb.padStart(w, ' ');
+  const pr = sr.padStart(w, ' ');
+  const dotCol = d > 0 ? w - d - 1 : -1;
+
+  const digitCols = [];
+  for(let i = 0; i < w; i++){
+    if(i !== dotCol) digitCols.push(i);
+  }
+
+  const items = [];
+  let rowNum = 1;
+
+  if(op === '+'){
+    const carries = new Array(w).fill(0);
+    let carry = 0;
+    for(let idx = digitCols.length - 1; idx >= 0; idx--){
+      const col = digitCols[idx];
+      const da = pa[col] === ' ' ? 0 : Number(pa[col]);
+      const db = pb[col] === ' ' ? 0 : Number(pb[col]);
+      const sum = da + db + carry;
+      carry = Math.floor(sum / 10);
+      if(carry > 0 && idx > 0){
+        carries[digitCols[idx - 1]] = carry;
+      }
+    }
+
+    if(carries.some(c => c > 0)){
+      for(let i = 0; i < w; i++){
+        if(carries[i] > 0){
+          items.push('<span class="v-cell carry-cell" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + carries[i] + '</span>');
+        }
+      }
+      rowNum++;
+    }
+
+    for(let i = 0; i < w; i++){
+      if(pa[i] !== ' '){
+        const cls = pa[i] === '.' ? 'v-cell dot' : 'v-cell';
+        items.push('<span class="' + cls + '" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + escapeHtml(pa[i]) + '</span>');
+      }
+    }
+    rowNum++;
+  }else{
+    const eff = new Array(w).fill(null);
+    const changed = new Array(w).fill(false);
+    let borrowIn = 0;
+
+    for(let idx = digitCols.length - 1; idx >= 0; idx--){
+      const col = digitCols[idx];
+      const da = pa[col] === ' ' ? 0 : Number(pa[col]);
+      const db = pb[col] === ' ' ? 0 : Number(pb[col]);
+      let cur = da - borrowIn;
+      const lent = borrowIn > 0;
+      let needBorrow = false;
+
+      if(cur < db){
+        cur += 10;
+        needBorrow = true;
+        borrowIn = 1;
+      }else{
+        borrowIn = 0;
+      }
+
+      if(lent || needBorrow){
+        eff[col] = cur;
+        changed[col] = true;
+      }
+    }
+
+    if(eff.some(v => v !== null)){
+      for(let i = 0; i < w; i++){
+        if(eff[i] !== null){
+          const s = String(eff[i]);
+          const cls = s.length > 1 ? 'v-cell borrow-cell two-digit' : 'v-cell borrow-cell';
+          items.push('<span class="' + cls + '" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + s + '</span>');
+        }
+      }
+      rowNum++;
+    }
+
+    for(let i = 0; i < w; i++){
+      if(pa[i] !== ' '){
+        const cls = changed[i] ? 'v-cell borrowed-digit' : (pa[i] === '.' ? 'v-cell dot' : 'v-cell');
+        items.push('<span class="' + cls + '" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + escapeHtml(pa[i]) + '</span>');
+      }
+    }
+    rowNum++;
+  }
+
+  /* 運算符與第二個數字 */
+  items.push('<span class="v-cell op" style="grid-column:1;grid-row:' + rowNum + '">' + escapeHtml(op) + '</span>');
+  for(let i = 0; i < w; i++){
+    if(pb[i] !== ' '){
+      const cls = pb[i] === '.' ? 'v-cell dot' : 'v-cell';
+      items.push('<span class="' + cls + '" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + escapeHtml(pb[i]) + '</span>');
+    }
+  }
+  rowNum++;
+
+  /* 橫線 */
+  items.push('<div class="v-rule" style="grid-row:' + rowNum + '"></div>');
+  rowNum++;
+
+  /* 結果 */
+  for(let i = 0; i < w; i++){
+    if(pr[i] !== ' '){
+      const cls = pr[i] === '.' ? 'v-cell res dot' : 'v-cell res';
+      items.push('<span class="' + cls + '" style="grid-column:' + (i + 3) + ';grid-row:' + rowNum + '">' + escapeHtml(pr[i]) + '</span>');
+    }
+  }
+  rowNum++;
+
+  if(sr !== srClean){
+    items.push('<div class="v-eq-note" style="grid-row:' + rowNum + '">= ' + escapeHtml(srClean) + '</div>');
+  }
+
+  return {html: '<div class="v-grid" style="--cols:' + cols + '">' + items.join('') + '</div>'};
+}
+
+/* 直式乘法（0.3ch 字距格線、港式先乘高位再乘低位，含補零對齊與各步進位） */
+function vMul(a, b){
+  if(!Number.isFinite(a) || !Number.isFinite(b)) return '';
+  const r = cleanFloat(a * b);
+  if(a < 0 || b < 0){
+    return fmtNum(a) + ' × ' + fmtNum(b) + ' = ' + fmtNum(r);
+  }
+
+  const sa = fmtNum(a), sb = fmtNum(b);
+  const decA = decPlaces(a), decB = decPlaces(b);
+  const totalDec = decA + decB;
+  const srFull = totalDec > 0 ? r.toFixed(totalDec) : String(r);
+  const srClean = fmtNum(r);
+
+  const intA = Math.round(a * Math.pow(10, decA));
+  const intBStr = String(Math.round(b * Math.pow(10, decB)));
+
+  /* 由高位至低位收集所有非零乘數位 */
+  const nonZero = [];
+  for(let k = 0; k < intBStr.length; k++){
+    const d = Number(intBStr[k]);
+    if(d > 0){
+      nonZero.push({d, shift: intBStr.length - 1 - k});
+    }
+  }
+
+  const items = [];
+  let rowNum = 1;
+
+  function pushTextRow(str, maxW, extraClass){
+    const offset = maxW - str.length;
+    for(let i = 0; i < str.length; i++){
+      const dotCls = str[i] === '.' ? ' dot' : '';
+      const cls = 'v-cell' + (extraClass ? ' ' + extraClass : '') + dotCls;
+      items.push('<span class="' + cls + '" style="grid-column:' + (3 + offset + i) + ';grid-row:' + rowNum + '">' + escapeHtml(str[i]) + '</span>');
+    }
+  }
+
+  /* 單一非零位乘數（或含 0） */
+  if(a === 0 || b === 0 || nonZero.length <= 1){
+    const w = Math.max(sa.length, sb.length, srFull.length);
+    const cols = w + 2;
+
+    if(a > 0 && b > 0 && nonZero.length === 1){
+      const mulCarries = computeMulCarries(sa, nonZero[0].d);
+      if(mulCarries.some(c => c > 0)){
+        const offset = w - sa.length;
+        for(let i = 0; i < sa.length; i++){
+          if(mulCarries[i] > 0){
+            items.push('<span class="v-cell carry-cell" style="grid-column:' + (3 + offset + i) + ';grid-row:' + rowNum + '">' + mulCarries[i] + '</span>');
+          }
+        }
+        rowNum++;
+      }
+    }
+
+    pushTextRow(sa, w, '');
+    rowNum++;
+
+    items.push('<span class="v-cell op" style="grid-column:1;grid-row:' + rowNum + '">×</span>');
+    pushTextRow(sb, w, '');
+    rowNum++;
+
+    items.push('<div class="v-rule" style="grid-row:' + rowNum + '"></div>');
+    rowNum++;
+
+    pushTextRow(srFull, w, 'res');
+    rowNum++;
+
+    if(srFull !== srClean){
+      items.push('<div class="v-eq-note" style="grid-row:' + rowNum + '">= ' + escapeHtml(srClean) + '</div>');
+    }
+
+    return {html: '<div class="v-grid" style="--cols:' + cols + '">' + items.join('') + '</div>'};
+  }
+
+  /* 多位數乘數（先乘高位再乘低位，補零對齊） */
+  const parts = nonZero.map(({d, shift}) => {
+    const core = String(intA * d);
+    const zeros = '0'.repeat(shift);
+    return {d, core, zeros, text: core + zeros};
+  });
+
+  const maxPartLen = Math.max(...parts.map(p => p.text.length));
+  const maxW = Math.max(sa.length, sb.length, srFull.length, maxPartLen);
+  const cols = maxW + 2;
+
+  /* 計算各部分積相加時的進位 */
+  const addCarries = new Array(maxPartLen).fill(0);
+  let carry = 0;
+  for(let pos = 0; pos < maxPartLen; pos++){
+    let colSum = carry;
+    for(const p of parts){
+      const idx = p.text.length - 1 - pos;
+      if(idx >= 0) colSum += Number(p.text[idx]);
+    }
+    carry = Math.floor(colSum / 10);
+    if(carry > 0 && pos + 1 < maxPartLen){
+      addCarries[maxPartLen - 1 - (pos + 1)] = carry;
+    }
+  }
+
+  let hasNote = false;
+  parts.forEach(p => {
+    const mulCarries = computeMulCarries(sa, p.d);
+    if(mulCarries.some(c => c > 0)){
+      hasNote = true;
+      const offset = maxW - sa.length;
+      for(let i = 0; i < sa.length; i++){
+        if(mulCarries[i] > 0){
+          items.push('<span class="v-cell carry-cell" style="grid-column:' + (3 + offset + i) + ';grid-row:' + rowNum + '">' + mulCarries[i] + '</span>');
+        }
+      }
+      items.push('<span class="v-note-cell" style="grid-column:' + (cols + 1) + ';grid-row:' + rowNum + '">(×' + p.d + ')</span>');
+      rowNum++;
+    }
+  });
+
+  pushTextRow(sa, maxW, '');
+  rowNum++;
+
+  items.push('<span class="v-cell op" style="grid-column:1;grid-row:' + rowNum + '">×</span>');
+  pushTextRow(sb, maxW, '');
+  rowNum++;
+
+  items.push('<div class="v-rule" style="grid-row:' + rowNum + '"></div>');
+  rowNum++;
+
+  parts.forEach(p => {
+    const offset = maxW - p.text.length;
+    for(let i = 0; i < p.core.length; i++){
+      items.push('<span class="v-cell" style="grid-column:' + (3 + offset + i) + ';grid-row:' + rowNum + '">' + escapeHtml(p.core[i]) + '</span>');
+    }
+    for(let j = 0; j < p.zeros.length; j++){
+      items.push('<span class="v-cell pad-zero" style="grid-column:' + (3 + offset + p.core.length + j) + ';grid-row:' + rowNum + '">0</span>');
+    }
+    rowNum++;
+  });
+
+  if(addCarries.some(c => c > 0)){
+    const offset = maxW - maxPartLen;
+    for(let i = 0; i < maxPartLen; i++){
+      if(addCarries[i] > 0){
+        items.push('<span class="v-cell carry-cell" style="grid-column:' + (3 + offset + i) + ';grid-row:' + rowNum + '">' + addCarries[i] + '</span>');
+      }
+    }
+    rowNum++;
+  }
+
+  items.push('<div class="v-rule" style="grid-row:' + rowNum + '"></div>');
+  rowNum++;
+
+  pushTextRow(srFull, maxW, 'res');
+  rowNum++;
+
+  if(srFull !== srClean){
+    items.push('<div class="v-eq-note" style="grid-row:' + rowNum + '">= ' + escapeHtml(srClean) + '</div>');
+  }
+
+  return {html: '<div class="v-grid' + (hasNote ? ' has-note' : '') + '" style="--cols:' + cols + '">' + items.join('') + '</div>'};
+}
+
+/* 港式長除法美化渲染器（弧形除號 + 0.3ch 字距對齊 + 標示拉下位數與餘數） */
+function buildDivHtml(divisorStr, dividendStr, qChars, rows, noteText, dotCol){
+  const n = dividendStr.length;
+
+  let qHtml = '';
+  for(let i = 0; i < n; i++){
+    if(qChars[i] !== ' '){
+      qHtml += '<span class="v-cell" style="grid-column:' + (i + 1) + '">' + escapeHtml(qChars[i]) + '</span>';
+    }
+  }
+
+  let dividendHtml = '';
+  for(let i = 0; i < n; i++){
+    dividendHtml += '<span class="v-cell" style="grid-column:' + (i + 1) + '">' + escapeHtml(dividendStr[i]) + '</span>';
+  }
+
+  const stepItems = [];
+  let rowNum = 1;
+
+  rows.forEach(rw => {
+    if(rw.type === 'bar'){
+      stepItems.push('<div class="v-div-bar" style="grid-column:' + (rw.start + 1) + ' / ' + (rw.end + 2) + ';grid-row:' + rowNum + '"></div>');
+      rowNum++;
+      return;
+    }
+
+    const s = rw.text;
+    let col = rw.end;
+    const pulledStart = rw.type === 'cur' ? s.length - (rw.pulledCount || 0) : s.length;
+
+    for(let k = s.length - 1; k >= 0; k--){
+      if(col === dotCol) col--;
+      if(col >= 0){
+        let cls = 'v-cell';
+        if(rw.type === 'prod') cls += ' v-div-prod';
+        else if(rw.type === 'cur') cls += (k >= pulledStart ? ' v-div-pulled' : ' v-div-cur');
+        else if(rw.type === 'rem') cls += (rw.isZero ? ' v-div-rem-zero' : ' v-div-rem-val');
+        stepItems.push('<span class="' + cls + '" style="grid-column:' + (col + 1) + ';grid-row:' + rowNum + '">' + escapeHtml(s[k]) + '</span>');
+      }
+      col--;
+    }
+
+    if(rw.type === 'rem' && !rw.isZero){
+      stepItems.push('<span class="v-div-rem-tag" style="grid-column:' + (n + 1) + ';grid-row:' + rowNum + '">餘</span>');
+    }
+    rowNum++;
+  });
+
+  const arcSvg =
+    '<svg viewBox="0 0 12 28" preserveAspectRatio="none" aria-hidden="true">' +
+    '<path d="M 12.6 1 Q 9.8 15 1.5 27" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+    '</svg>';
+
+  const noteHtml = noteText ? '<div class="v-div-note">' + escapeHtml(noteText) + '</div>' : '';
+
+  return {
+    html:
+      noteHtml +
+      '<div class="v-div-wrap" style="--dcols:' + n + '">' +
+        '<div class="v-div-q">' + qHtml + '</div>' +
+        '<div class="v-div-divisor">' + escapeHtml(divisorStr) + '</div>' +
+        '<div class="v-div-arc">' + arcSvg + '</div>' +
+        '<div class="v-div-dividend">' + dividendHtml + '</div>' +
+        '<div class="v-div-steps">' + stepItems.join('') + '</div>' +
+      '</div>'
+  };
+}
+
+/* 港式長除法（支援整數有餘數、小數直式與除數化整） */
+function vDiv(a, b, allowRemainder){
+  if(!Number.isFinite(a) || !Number.isFinite(b) || b === 0) return '（除數不能為 0）';
+  if(a < 0 || b < 0){
+    return fmtNum(a) + ' ÷ ' + fmtNum(b) + ' = ' + fmtNum(a / b);
+  }
+
+  if(Number.isInteger(a) && Number.isInteger(b) && (a % b === 0 || allowRemainder)){
+    return vDivInteger(a, b);
+  }
+
+  const qVal = cleanFloat(a / b);
+  const qDec = decPlaces(qVal);
+  if(qDec > 4 || Math.abs(qVal * Math.pow(10, qDec) - Math.round(qVal * Math.pow(10, qDec))) > 1e-6){
+    return fmtNum(a) + ' ÷ ' + fmtNum(b) + ' = ' + fmtNum(qVal);
+  }
+
+  const decB = decPlaces(b);
+  let noteText = '';
+  let numA = a, numB = b;
+  if(decB > 0){
+    const factor = Math.pow(10, decB);
+    numA = cleanFloat(a * factor);
+    numB = Math.round(b * factor);
+    noteText = '同乘 ' + factor + ' → ' + fmtNum(numA) + ' ÷ ' + numB;
+  }
+
+  return vDivDecimal(numA, numB, qDec, noteText);
+}
+
+/* 港式整數長除法 */
+function vDivInteger(a, b){
+  const ds = String(a);
+  const n = ds.length;
+  const qChars = new Array(n).fill(' ');
+  const rows = [];
+
+  let rem = 0;
+  let lastSubRem = 0;
+  let started = false;
+  let lastSubEnd = n - 1;
+
+  for(let i = 0; i < n; i++){
+    const cur = rem * 10 + Number(ds[i]);
+    const q = Math.floor(cur / b);
+    const prod = q * b;
+    rem = cur - prod;
+
+    if(q > 0){
+      if(started){
+        const curStr = String(cur);
+        const remDigits = lastSubRem === 0 ? 0 : String(lastSubRem).length;
+        rows.push({
+          type: 'cur',
+          text: curStr,
+          end: i,
+          pulledCount: Math.max(0, curStr.length - remDigits)
+        });
+      }
+      started = true;
+      qChars[i] = String(q);
+
+      const cs = String(cur);
+      const ps = String(prod);
+      const barLen = Math.max(cs.length, ps.length);
+
+      rows.push({type: 'prod', text: ps, end: i});
+      rows.push({type: 'bar', start: i - barLen + 1, end: i});
+      lastSubEnd = i;
+      lastSubRem = rem;
+    }else if(started){
+      qChars[i] = '0';
+    }
+  }
+
+  if(!started){
+    qChars[n - 1] = '0';
+    rows.push({type: 'prod', text: '0', end: n - 1});
+    rows.push({type: 'bar', start: 0, end: n - 1});
+    rows.push({type: 'rem', text: String(rem), end: n - 1, isZero: rem === 0});
+  }else{
+    rows.push({type: 'rem', text: String(rem), end: rem === 0 ? lastSubEnd : n - 1, isZero: rem === 0});
+  }
+
+  return buildDivHtml(String(b), ds, qChars, rows, '', -1);
+}
+
+/* 港式小數長除法（除數 b 為正整數，小數點上下對齊） */
+function vDivDecimal(a, b, targetDec, noteText){
+  const needDec = Math.max(decPlaces(a), targetDec);
+  const ds = needDec > 0 ? a.toFixed(needDec) : String(a);
+  const dotCol = ds.indexOf('.');
+  const n = ds.length;
+
+  const qChars = new Array(n).fill(' ');
+  const rows = [];
+
+  let rem = 0;
+  let lastSubRem = 0;
+  let quotientStarted = false;
+  let hasSubtracted = false;
+  let lastSubEnd = n - 1;
+
+  function startColFor(text, endCol){
+    let col = endCol;
+    for(let k = text.length - 1; k >= 0; k--){
+      if(col === dotCol) col--;
+      if(k > 0) col--;
+    }
+    return Math.max(0, col);
+  }
+
+  for(let i = 0; i < n; i++){
+    if(ds[i] === '.'){
+      if(!quotientStarted && i > 0){
+        qChars[i - 1] = '0';
+        quotientStarted = true;
+      }
+      qChars[i] = '.';
+      continue;
+    }
+
+    const cur = rem * 10 + Number(ds[i]);
+    const q = Math.floor(cur / b);
+    const prod = q * b;
+    rem = cur - prod;
+
+    if(q > 0){
+      if(hasSubtracted){
+        const curStr = String(cur);
+        const remDigits = lastSubRem === 0 ? 0 : String(lastSubRem).length;
+        rows.push({
+          type: 'cur',
+          text: curStr,
+          end: i,
+          pulledCount: Math.max(0, curStr.length - remDigits)
+        });
+      }
+      quotientStarted = true;
+      hasSubtracted = true;
+      qChars[i] = String(q);
+
+      const cs = String(cur);
+      const ps = String(prod);
+      const sCol = Math.min(startColFor(cs, i), startColFor(ps, i));
+
+      rows.push({type: 'prod', text: ps, end: i});
+      rows.push({type: 'bar', start: sCol, end: i});
+      lastSubEnd = i;
+      lastSubRem = rem;
+    }else if(quotientStarted){
+      qChars[i] = '0';
+    }
+  }
+
+  if(!hasSubtracted){
+    qChars[n - 1] = '0';
+    rows.push({type: 'prod', text: '0', end: n - 1});
+    rows.push({type: 'bar', start: 0, end: n - 1});
+    rows.push({type: 'rem', text: '0', end: n - 1, isZero: true});
+  }else{
+    rows.push({type: 'rem', text: String(rem), end: lastSubEnd, isZero: rem === 0});
+  }
+
+  return buildDivHtml(String(b), ds, qChars, rows, noteText || '', dotCol);
+}
+
+function renderVerticalCard(c, isSingleStep){
+  switch(c.op){
+    case '+': return vAddSub(c.a, c.b, '+');
+    case '-': return vAddSub(c.a, c.b, '-');
+    case '×': return vMul(c.a, c.b);
+    case '÷': return vDiv(c.a, c.b, isSingleStep);
+  }
+  return '';
+}
+
+/* =========================================================
+   6. 答案頁渲染（含步驟標籤）
+   ========================================================= */
+
+function renderAnswers(){
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+
+  questions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'answer-card';
+
+    const h = document.createElement('h3');
+    h.textContent = '第 ' + (idx + 1) + ' 題';
+    card.appendChild(h);
+
+    const line = document.createElement('div');
+    line.className = 'expr-line';
+    const exprStr = tokensToString(q.tokens);
+    const divRem = getSingleDivRemainder(q.tree);
+    let ansStr = '?';
+    if(divRem){
+      ansStr = divRem.q + ' ... ' + divRem.r + '（' + fmtNum(q.answer) + '）';
+    }else if(q.answer !== null && Number.isFinite(q.answer)){
+      ansStr = fmtNum(q.answer);
+    }
+    line.textContent = (exprStr || '（無效算式）') + ' = ' + ansStr;
+    card.appendChild(line);
+
+    if(q.tree){
+      const steps = [];
+      try{ collectSteps(q.tree, steps); }catch(e){}
+      const isSingleStep = steps.length === 1;
+
+      if(steps.length > 0){
+        const wrap = document.createElement('div');
+        wrap.className = 'steps-wrap';
+
+        steps.forEach((st, sIdx) => {
+          const content = renderVerticalCard(st, isSingleStep);
+          if(!content) return;
+          const box = document.createElement('div');
+          box.className = 'step-box';
+
+          if(steps.length > 1){
+            const tag = document.createElement('div');
+            tag.className = 'step-tag';
+            tag.textContent = '步驟 ' + (sIdx + 1);
+            box.appendChild(tag);
+          }
+
+          if(typeof content === 'object' && content.html){
+            const calc = document.createElement('div');
+            calc.className = 'v-calc';
+            calc.innerHTML = content.html;
+            box.appendChild(calc);
+          }else{
+            const pre = document.createElement('pre');
+            pre.className = 'vertical';
+            pre.textContent = content;
+            box.appendChild(pre);
+          }
+          wrap.appendChild(box);
+        });
+
+        card.appendChild(wrap);
+      }
+    }
+
+    container.appendChild(card);
+  });
+}
+
+/* =========================================================
+   7. 手動輸入解析（支援全形字元與省略乘號如 2(3+4)）
+   ========================================================= */
+
+function normalizeDigits(str){
+  return str
+    .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+    .replace(/．/g, '.');
+}
+
+function parseExpression(rawStr){
+  const str = normalizeDigits(rawStr);
+  const tokens = [];
+  let i = 0;
+
+  while(i < str.length){
+    const ch = str[i];
+    if(/\s/.test(ch)){ i++; continue; }
+
+    if(/[0-9.]/.test(ch)){
+      let num = '';
+      while(i < str.length && /[0-9.]/.test(str[i])) num += str[i++];
+      const prev = tokens[tokens.length - 1];
+      if(prev && prev.t === ')') tokens.push({t:'op', v:'×'});
+      tokens.push({t:'num', v: num});
+      continue;
+    }
+    if('+-×÷*/＋－−＊／xX'.includes(ch)){
+      let op = ch;
+      if(op === '＋') op = '+';
+      if(op === '－' || op === '−') op = '-';
+      if(op === '*' || op === '＊' || op === 'x' || op === 'X') op = '×';
+      if(op === '/' || op === '／') op = '÷';
+      tokens.push({t:'op', v: op});
+      i++; continue;
+    }
+    if(ch === '(' || ch === '（'){
+      const prev = tokens[tokens.length - 1];
+      if(prev && (prev.t === 'num' || prev.t === ')')) tokens.push({t:'op', v:'×'});
+      tokens.push({t:'(', v:'('});
+      i++; continue;
+    }
+    if(ch === ')' || ch === '）'){
+      tokens.push({t:')', v:')'});
+      i++; continue;
+    }
+    if(ch === '=' || ch === '＝'){ break; }
+    i++;
+  }
+  return tokens;
+}
+
+/* =========================================================
+   8. 運算符號開關狀態與主控流程
+   ========================================================= */
+
+function getAllowedOps(){
+  return Array.from(document.querySelectorAll('.op-filter:checked')).map(el => el.value);
+}
+
+function refreshOpUI(){
+  const allowed = getAllowedOps();
+  document.querySelectorAll('.op-toggle').forEach(lbl => {
+    const cb = lbl.querySelector('.op-filter');
+    const on = cb && cb.checked;
+    lbl.classList.toggle('on', !!on);
+    lbl.classList.toggle('off', !on);
+  });
+
+  /* 視覺提示：若加減均未選，淡化加減位數；若乘除均未選，淡化乘除位數；未開小數時淡化小數次數 */
+  const hasAS = allowed.includes('+') || allowed.includes('-');
+  const hasMD = allowed.includes('×') || allowed.includes('÷');
+  const useDec = document.getElementById('useDecimal').checked;
+  document.getElementById('asDigitsWrap').classList.toggle('disabled-hint', !hasAS);
+  document.getElementById('mdDigitsWrap').classList.toggle('disabled-hint', !hasMD);
+  document.getElementById('decCountWrap').classList.toggle('disabled-hint', !useDec);
+}
+
+function generate(){
+  const n = Math.min(20, Math.max(1, parseInt(document.getElementById('qCount').value, 10) || 10));
+  document.getElementById('qCount').value = n;
+
+  const allowedOps = getAllowedOps();
+  if(allowedOps.length === 0){
+    showNotice('請至少保留一種運算符號');
+    return;
+  }
+
+  const cfg = {
+    aDigits   : parseInt(document.getElementById('asDigits').value, 10),
+    mDigits   : parseInt(document.getElementById('mdDigits').value, 10),
+    useParen  : document.getElementById('useParen').checked,
+    useDecimal: document.getElementById('useDecimal').checked,
+    decCount  : Math.min(3, Math.max(1, parseInt(document.getElementById('decCount').value, 10) || 1)),
+    allowedOps
+  };
+
+  questions = [];
+  for(let i = 0; i < n; i++){
+    questions.push(makeQuestion(generateOne(cfg)));
+  }
+  renderQuestions();
+  document.getElementById('score').textContent = '';
+  document.getElementById('answerSheet').classList.add('hidden');
+}
+
+function init(){
+  /* 運算符號開關：至少保留 1 種運算 */
+  document.querySelectorAll('.op-filter').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if(getAllowedOps().length === 0){
+        cb.checked = true;
+        showNotice('至少須保留一種運算符號');
+        return;
+      }
+      refreshOpUI();
+    });
+  });
+
+  document.getElementById('useDecimal').addEventListener('change', refreshOpUI);
+  document.getElementById('decCount').addEventListener('change', () => {
+    const decCb = document.getElementById('useDecimal');
+    if(!decCb.checked) decCb.checked = true;
+    refreshOpUI();
+  });
+
+  document.getElementById('genBtn').addEventListener('click', generate);
+  document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+  document.getElementById('clearBtn').addEventListener('click', clearAnswers);
+
+  document.getElementById('ansBtn').addEventListener('click', () => {
+    const sheet = document.getElementById('answerSheet');
+    if(sheet.classList.contains('hidden')){
+      renderAnswers();
+      sheet.classList.remove('hidden');
+      sheet.scrollIntoView({behavior:'smooth'});
+    }else{
+      sheet.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('printBtn').addEventListener('click', () => {
+    renderAnswers();
+    document.getElementById('answerSheet').classList.remove('hidden');
+    window.print();
+  });
+
+  window.addEventListener('beforeprint', renderAnswers);
+
+  document.getElementById('loadManual').addEventListener('click', () => {
+    const lines = document.getElementById('manualInput').value
+      .split('\n').map(s => s.trim()).filter(Boolean).slice(0, 20);
+    if(!lines.length){
+      showNotice('請先輸入至少一題算式');
+      return;
+    }
+
+    questions = lines.map(line => makeQuestion(parseExpression(line)));
+    renderQuestions();
+    document.getElementById('score').textContent = '';
+    document.getElementById('answerSheet').classList.add('hidden');
+    showNotice('已載入 ' + questions.length + ' 題手動題目');
+  });
+
+  refreshOpUI();
+  generate();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
