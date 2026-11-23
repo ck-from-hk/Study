@@ -6752,7 +6752,7 @@ function analyzeDigitBlankLine(rawLine){
     const eq1 = parts[0].split(/[=＝]/);
     const eq2 = parts[1].split(/[=＝]/);
     if(eq1.length !== 2 || eq2.length !== 2){
-      return {status: 'error', blocked: true, message: '分層直式兩層皆須包含等號，例如：2A5 + 1B3 = 3A8 ; × 4 = 1C12'};
+      return {status: 'error', blocked: true, message: '分層直式兩層皆須包含等號，例如：2A5 + 1B3 = 3A8 ; × 4 = 1C72'};
     }
 
     const t1 = tokenizeDigitBlankExpr(eq1[0]);
