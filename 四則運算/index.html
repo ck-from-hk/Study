@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>四則運算練習 生成及解題器 </title>
+<title>四則運算練習</title>
 <style>
   :root{
     --bg:#f1f5f9;
@@ -33,7 +33,7 @@
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
     margin:0 auto;
-    padding:20px 16px 40px;
+    padding:20px 16px 32px;
     max-width:1040px;
     background:var(--bg);
     color:var(--text);
@@ -194,6 +194,11 @@
     border-color:#c4b5fd;
     color:#5b21b6;
   }
+  .check-pill.edit-pill:has(input:checked){
+    background:#fef3c7;
+    border-color:#f59e0b;
+    color:#92400e;
+  }
 
   /* ===== 運算符號開關（加減乘除按需剔除） ===== */
   .ops-group{
@@ -308,8 +313,9 @@
     border-color:#fecaca;
   }
 
-  /* ===== 橫式題目列表 ===== */
+  /* ===== 橫式題目列表（字體可透過 --q-scale 調整） ===== */
   #questions{
+    --q-scale:1;
     display:block;
     margin-bottom:16px;
   }
@@ -323,7 +329,7 @@
     border-radius:12px;
     padding:10px 14px;
     margin-bottom:9px;
-    font-size:1.15rem;
+    font-size:calc(1.15rem * var(--q-scale, 1));
     box-shadow:0 1px 3px rgba(15,23,42,.03);
     transition:border-color .18s,background .18s,box-shadow .18s;
   }
@@ -362,27 +368,48 @@
   .expr{
     display:flex;
     align-items:center;
-    gap:3px;
+    gap:4px;
     flex-wrap:wrap;
   }
+  /* 練習模式下的純淨靜態數字與運算符號（無下拉箭頭、不干擾作答） */
+  .numtok-static{
+    font:inherit;
+    padding:1px 2px;
+    color:var(--num);
+    font-weight:700;
+  }
+  .numtok-static.rhs-num{
+    color:#1e293b;
+  }
+  .optok-static{
+    font:inherit;
+    font-weight:700;
+    color:var(--op);
+    padding:0 4px;
+    user-select:none;
+  }
+
+  /* 編輯模式下的可輸入數字框與運算符號選單 */
   .numtok{
     font:inherit;
     text-align:center;
-    border:1.5px solid transparent;
+    border:1.5px dashed #93c5fd;
     border-radius:7px;
-    background:transparent;
+    background:#f8fafc;
     padding:2px 3px;
     color:var(--num);
     font-weight:700;
     transition:border-color .15s,background .15s,opacity .15s;
   }
   .numtok:hover,.numtok:focus{
-    border-color:#93c5fd;
+    border-style:solid;
+    border-color:#2563eb;
     background:#eff6ff;
     outline:none;
   }
   .numtok.rhs-num{color:#1e293b;}
   .numtok.invalid{
+    border-style:solid;
     border-color:var(--bad);
     background:#fef2f2;
     color:var(--bad);
@@ -396,17 +423,17 @@
     font:inherit;
     font-weight:700;
     color:var(--op);
-    border:1px solid #e2e8f0;
+    border:1.5px solid #fca5a5;
     border-radius:7px;
     padding:1px 3px;
     background:#fff;
     cursor:pointer;
     transition:opacity .15s,border-color .15s;
   }
-  .optok:hover,.optok:focus{border-color:#fca5a5;outline:none;}
+  .optok:hover,.optok:focus{border-color:#dc2626;outline:none;}
   .dimmed{opacity:.28;}
 
-  .paren{font-weight:700;color:#475569;padding:0 2px;font-size:1.18rem;}
+  .paren{font-weight:700;color:#475569;padding:0 2px;font-size:1.03em;}
   .eq{color:#64748b;font-weight:700;margin:0 2px;}
 
   .ansinput{
@@ -634,8 +661,9 @@
     align-items:center;
   }
 
-  /* ===== 直式填空練習區塊（左右雙欄排版：左邊一題、右邊一題） ===== */
+  /* ===== 直式填空練習區塊（左右雙欄排版，字體可透過 --q-scale 調整） ===== */
   #vpSection{
+    --q-scale:1;
     margin-bottom:18px;
   }
   #vpSection.hidden{display:none;}
@@ -749,10 +777,13 @@
     align-items:center;
     justify-items:center;
   }
+  #vpSection .vp-grid{
+    font-size:calc(1.12rem * var(--q-scale, 1));
+  }
   .vp-op-cell{
     font-weight:800;
     color:var(--op);
-    font-size:1.12rem;
+    font-size:1em;
     justify-self:center;
   }
   .vp-op-select{
@@ -785,7 +816,7 @@
   }
   .vp-blank-inp{
     font-family:"SFMono-Regular",Consolas,"Courier New","DejaVu Sans Mono",monospace;
-    font-size:1.08rem;
+    font-size:0.96em;
     font-weight:800;
     width:1.55em;
     height:1.65em;
@@ -846,9 +877,12 @@
     font-weight:800;
     color:#0369a1;
   }
+  #vpSection .vp-letter-item{
+    font-size:calc(.98rem * var(--q-scale, 1));
+  }
   .vp-letter-ans-inp{
     font-family:"SFMono-Regular",Consolas,"Courier New",monospace;
-    font-size:1rem;
+    font-size:1em;
     font-weight:800;
     width:1.75em;
     height:1.7em;
@@ -880,7 +914,7 @@
 
   .vp-edit-inp{
     font-family:"SFMono-Regular",Consolas,"Courier New","DejaVu Sans Mono",monospace;
-    font-size:1.05rem;
+    font-size:0.94em;
     font-weight:700;
     width:1.52em;
     height:1.6em;
@@ -1024,7 +1058,7 @@
   }
   .vp-mirror-box{
     font-family:"SFMono-Regular",Consolas,"Courier New","DejaVu Sans Mono",monospace;
-    font-size:1.05rem;
+    font-size:0.94em;
     font-weight:800;
     width:1.52em;
     height:1.6em;
@@ -1230,8 +1264,9 @@
     padding:1px 7px;
   }
 
-  /* ===== 答案頁：左右雙欄排版（左邊第1題、右邊第2題，如此類推） ===== */
+  /* ===== 答案頁：固定字體大小（不受題目字體縮放影響），左右雙欄排版 ===== */
   #answerSheet{
+    --q-scale:1;
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--radius);
@@ -1533,6 +1568,67 @@
     align-items:center;
   }
 
+  /* ===== 螢幕右下推介小字（列印時隱藏） ===== */
+  .promo-footer{
+    margin-top:22px;
+    margin-bottom:28px;
+    text-align:right;
+    font-size:.88rem;
+    font-weight:500;
+    color:#4b5563;
+  }
+  .promo-details{
+    display:inline-block;
+    text-align:right;
+  }
+  .promo-details summary{
+    list-style:none;
+    cursor:pointer;
+    user-select:none;
+    color:#4b5563;
+    font-weight:600;
+    padding:4px 8px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    transition:background .15s,color .15s;
+  }
+  .promo-details summary::-webkit-details-marker{display:none;}
+  .promo-details summary::before{
+    content:"▸";
+    font-size:.78em;
+    transition:transform .16s ease;
+  }
+  .promo-details[open] summary::before{
+    transform:rotate(90deg);
+  }
+  .promo-details summary:hover{
+    background:#e2e8f0;
+    color:#1f2937;
+  }
+  .promo-links{
+    margin-top:6px;
+    padding:8px 12px;
+    background:#ffffff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(15,23,42,.05);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    text-align:left;
+  }
+  .promo-footer a{
+    color:#4b5563;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    font-weight:600;
+  }
+  .promo-footer a:hover{
+    color:#1f2937;
+  }
+
   /* ===== 螢幕上的純淨列印預覽模式（解決 Firefox Focus 等瀏覽器無法直接呼叫列印） ===== */
   body.print-preview-mode{
     background:#ffffff;
@@ -1551,7 +1647,7 @@
     border-bottom:1px dotted #e2e8f0;
   }
   body.print-preview-mode .q-interactive{display:none !important;}
-  body.print-preview-mode .q-printable{display:block;font-size:1.15rem;}
+  body.print-preview-mode #questions .q-printable{display:block;font-size:calc(1.15rem * var(--q-scale, 1));}
   body.print-preview-mode .vp-pair{
     display:table;
     width:100%;
@@ -1602,7 +1698,7 @@
     border-radius:3px;
     color:#000 !important;
   }
-  body.print-preview-mode .vp-chain .vp-grid{font-size:1rem;}
+  body.print-preview-mode #vpSection .vp-chain .vp-grid{font-size:calc(1rem * var(--q-scale, 1));}
   body.print-preview-mode #answerSheet{
     display:block !important;
     border:none;
@@ -1629,9 +1725,9 @@
 
   /* ===== 行動裝置微調 ===== */
   @media (max-width:700px){
-    body{padding:14px 10px 30px;}
+    body{padding:14px 10px 26px;}
     .panel{padding:13px 14px;}
-    .q{font-size:1.05rem;padding:9px 10px;}
+    #questions .q{font-size:calc(1.05rem * var(--q-scale, 1));padding:9px 10px;}
     .ansinput{width:5.8em;}
     .ansinput.inline-blank{width:4.6em;}
     body:not(.print-preview-mode) .vp-pair{grid-template-columns:1fr;}
@@ -1664,7 +1760,7 @@
       width:100% !important;
       overflow:visible !important;
     }
-    .no-print,#printPreviewBar{display:none !important;}
+    .no-print,#printPreviewBar,.promo-footer{display:none !important;}
     .print-header{display:block !important;}
 
     #questions{
@@ -1685,9 +1781,9 @@
       page-break-inside:avoid;
     }
     .q-interactive{display:none !important;}
-    .q-printable{
+    #questions .q-printable{
       display:block !important;
-      font-size:12pt;
+      font-size:calc(12pt * var(--q-scale, 1)) !important;
       line-height:1.65;
     }
 
@@ -1733,7 +1829,7 @@
     }
     .vp-card-tools,.vp-status,.vp-badge{display:none !important;}
     .vp-card-title{color:#000 !important;font-size:10pt;}
-    .vp-grid{font-size:10.5pt !important;}
+    #vpSection .vp-grid{font-size:calc(10.5pt * var(--q-scale, 1)) !important;}
     .vp-op-cell,.vp-digit-fixed,.vp-dot-cell,.vp-div-line,.vp-div-arc-cell,.vp-ld-step-digit,.vp-q-label{
       color:#000 !important;
     }
@@ -1755,7 +1851,7 @@
       border:none !important;
       padding:4px 0 0 !important;
     }
-    .vp-letter-item{color:#000 !important;font-size:9.5pt;}
+    .vp-letter-item{color:#000 !important;font-size:calc(9.5pt * var(--q-scale, 1)) !important;}
     .vp-letter-ans-inp{display:none !important;}
     .vp-letter-print-line{
       display:inline-block !important;
@@ -1772,7 +1868,7 @@
       width:1.42em !important;
       height:1.48em !important;
     }
-    .vp-chain .vp-grid{font-size:9.6pt !important;}
+    #vpSection .vp-chain .vp-grid{font-size:calc(9.6pt * var(--q-scale, 1)) !important;}
     .vp-chain-arrow{color:#000 !important;}
     .vp-ld-top-bar{border-color:#000 !important;}
     .vp-ld-workspace{border-color:#bbb !important;}
@@ -1917,7 +2013,7 @@
 
 <header class="page-header no-print">
   <h1>🧮 四則運算練習</h1>
-  <p class="subtitle">支援零題設定、橫式計算／填空、A/B/C 字母直式謎題、逐步解題教學與雙欄列印</p>
+  <p class="subtitle">支援橫式計算／填空、A/B/C 字母直式謎題、逐步解題教學與雙欄列印</p>
 </header>
 
 <!-- 列印專用工作紙抬頭 -->
@@ -1932,10 +2028,32 @@
 
 <!-- 控制面板 -->
 <div class="panel no-print">
-  <!-- 第一列：橫式出題參數（題數支援 0～20 題） -->
+  <!-- 第一列：橫式出題參數 -->
   <div class="control-row">
     <label class="field">題數
-      <input type="number" id="qCount" value="10" min="0" max="20">
+      <select id="qCount">
+        <option value="0">0 題</option>
+        <option value="1">1 題</option>
+        <option value="2">2 題</option>
+        <option value="3">3 題</option>
+        <option value="4">4 題</option>
+        <option value="5">5 題</option>
+        <option value="6">6 題</option>
+        <option value="7">7 題</option>
+        <option value="8">8 題</option>
+        <option value="9">9 題</option>
+        <option value="10" selected>10 題</option>
+        <option value="11">11 題</option>
+        <option value="12">12 題</option>
+        <option value="13">13 題</option>
+        <option value="14">14 題</option>
+        <option value="15">15 題</option>
+        <option value="16">16 題</option>
+        <option value="17">17 題</option>
+        <option value="18">18 題</option>
+        <option value="19">19 題</option>
+        <option value="20">20 題</option>
+      </select>
     </label>
     <label class="field" id="qStyleWrap">題型
       <select id="qStyle">
@@ -1998,7 +2116,18 @@
       <input type="checkbox" id="useVerticalPuzzle"> 含直式填空練習
     </label>
     <label class="field disabled-hint" id="vpCountWrap">直式填空題數
-      <input type="number" id="vpCount" value="2" min="1" max="10">
+      <select id="vpCount">
+        <option value="1">1 題</option>
+        <option value="2" selected>2 題</option>
+        <option value="3">3 題</option>
+        <option value="4">4 題</option>
+        <option value="5">5 題</option>
+        <option value="6">6 題</option>
+        <option value="7">7 題</option>
+        <option value="8">8 題</option>
+        <option value="9">9 題</option>
+        <option value="10">10 題</option>
+      </select>
     </label>
     <label class="check-pill vp-pill disabled-hint" id="vpBottomQWrap" title="預設不勾選：直式填空會保留起首為長除法（商在上方）的題目；勾選後才會加入商寫在下方的除法題型">
       <input type="checkbox" id="vpAllowBottomQ"> 含商在下方（除法）
@@ -2011,7 +2140,7 @@
     </label>
   </div>
 
-  <!-- 第三列：操作按鈕 -->
+  <!-- 第三列：操作按鈕、題目字體大小與「編輯」模式開關（預設關閉） -->
   <div class="control-row actions">
     <button id="genBtn">🎲 出題</button>
     <button id="checkBtn" class="secondary">✔ 對答案</button>
@@ -2019,6 +2148,18 @@
     <button id="ansBtn" class="secondary">📐 顯示／隱藏直式答案</button>
     <button id="printBtn" class="secondary">🖨 列印（雙欄直式）</button>
     <button id="previewPrintBtn" class="secondary">📄 列印預覽／下載</button>
+    <label class="field" title="調整題目區字體大小（答案頁維持固定大小）">題目字體
+      <select id="qFontScale">
+        <option value="0.9">較小 (90%)</option>
+        <option value="1" selected>標準 (100%)</option>
+        <option value="1.15">較大 (115%)</option>
+        <option value="1.3">大 (130%)</option>
+        <option value="1.5">特大 (150%)</option>
+      </select>
+    </label>
+    <label class="check-pill edit-pill" title="開啟後可直接在題目上修改數字、切換運算符號或設為空格">
+      <input type="checkbox" id="editModeToggle"> ✏️ 編輯
+    </label>
   </div>
 
   <div class="status-bar">
@@ -2034,7 +2175,7 @@
 <section id="vpSection" class="hidden" aria-label="直式填空練習">
   <div class="vp-section-title">
     🧩 直式填空練習
-    <span class="no-print">（支援自動出題、數位挖空與 A/B/C 重複字母謎題；可點「✏️ 編輯題目」微調數字、字母與運算）</span>
+    <span class="no-print">（支援自動出題、數位挖空與 A/B/C 重複字母謎題；勾選上方「✏️ 編輯」可微調數字、字母與運算）</span>
   </div>
   <div id="vpContainer"></div>
 </section>
@@ -2084,7 +2225,7 @@
   </div>
 </details>
 
-<!-- 答案及直式區（左右雙欄排版） -->
+<!-- 答案及直式區（左右雙欄排版，字體固定不受題目縮放影響） -->
 <section id="answerSheet" class="hidden">
   <div class="ans-sheet-head">
     <h2>答案及港式直式計算</h2>
@@ -2094,6 +2235,17 @@
   </div>
   <div id="answers"></div>
 </section>
+
+<footer class="promo-footer no-print">
+  <details class="promo-details">
+    <summary>有用連結</summary>
+    <div class="promo-links">
+      <div><a href="https://ck-from-hk.github.io/-/" target="_blank" rel="noopener noreferrer">倉頡輸入練習</a></div>
+      <div><a href="https://ck-from-hk.github.io/canton/" target="_blank" rel="noopener noreferrer">粵拼輸入練習</a></div>
+      <div><a href="https://ck-from-hk.github.io/Study/paper/" target="_blank" rel="noopener noreferrer">學習用紙張生成器</a></div>
+    </div>
+  </details>
+</footer>
 
 <script>
 /* =========================================================
@@ -2109,6 +2261,18 @@ function showNotice(msg, isError = false){
   el.classList.add('show');
   clearTimeout(noticeTimer);
   noticeTimer = setTimeout(() => el.classList.remove('show'), 3800);
+}
+
+function isGlobalEditMode(){
+  return !!document.getElementById('editModeToggle')?.checked;
+}
+
+function applyQuestionFontScale(scaleVal){
+  const s = Number(scaleVal) || 1;
+  const qEl = document.getElementById('questions');
+  const vpEl = document.getElementById('vpSection');
+  if(qEl) qEl.style.setProperty('--q-scale', String(s));
+  if(vpEl) vpEl.style.setProperty('--q-scale', String(s));
 }
 
 function cleanFloat(n){
@@ -2752,7 +2916,7 @@ function generateOneQuestion(cfg, forceMissing){
 }
 
 /* =========================================================
-   3. 橫式題目資料、渲染與即時編輯同步（支援負數警告並阻擋）
+   3. 橫式題目資料、渲染與練習／編輯模式切換
    ========================================================= */
 
 let questions = [];
@@ -2926,6 +3090,7 @@ function toggleTokenBlankInQuestion(qIdx, tokIdx){
 function renderQuestions(){
   const container = document.getElementById('questions');
   container.innerHTML = '';
+  const editable = isGlobalEditMode();
 
   questions.forEach((q, idx) => {
     const row = document.createElement('div');
@@ -2975,42 +3140,56 @@ function renderQuestions(){
 
     q.tokens.forEach((tk, tokIdx) => {
       if(tk.t === 'num'){
-        const inp = document.createElement('input');
-        inp.type = 'text';
-        inp.inputMode = 'decimal';
-        inp.className = 'tok numtok';
-        inp.value = tk.v;
-        inp.style.width = (Math.max(1, String(tk.v).length) + 1.2) + 'ch';
-        inp.addEventListener('input', () => {
-          inp.style.width = (Math.max(1, inp.value.length) + 1.2) + 'ch';
-          syncQuestion(idx);
-        });
-        inp.addEventListener('focus', () => {
-          if(q.mode === 'normal' && q.answer !== null){
-            toggleChip.textContent = '設為空格 □';
-            toggleChip.style.display = 'inline-flex';
-            toggleChip.onmousedown = e => {
-              e.preventDefault();
-              toggleTokenBlankInQuestion(idx, tokIdx);
-            };
-          }
-        });
-        inp.addEventListener('blur', () => {
-          setTimeout(() => { toggleChip.style.display = 'none'; }, 120);
-        });
-        expr.appendChild(inp);
+        if(editable){
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.inputMode = 'decimal';
+          inp.className = 'tok numtok';
+          inp.value = tk.v;
+          inp.style.width = (Math.max(1, String(tk.v).length) + 1.2) + 'ch';
+          inp.addEventListener('input', () => {
+            inp.style.width = (Math.max(1, inp.value.length) + 1.2) + 'ch';
+            syncQuestion(idx);
+          });
+          inp.addEventListener('focus', () => {
+            if(q.mode === 'normal' && q.answer !== null){
+              toggleChip.textContent = '設為空格 □';
+              toggleChip.style.display = 'inline-flex';
+              toggleChip.onmousedown = e => {
+                e.preventDefault();
+                toggleTokenBlankInQuestion(idx, tokIdx);
+              };
+            }
+          });
+          inp.addEventListener('blur', () => {
+            setTimeout(() => { toggleChip.style.display = 'none'; }, 120);
+          });
+          expr.appendChild(inp);
+        }else{
+          const sp = document.createElement('span');
+          sp.className = 'tok numtok-static';
+          sp.textContent = tk.v;
+          expr.appendChild(sp);
+        }
       }else if(tk.t === 'op'){
-        const sel = document.createElement('select');
-        sel.className = 'tok optok';
-        sel.setAttribute('aria-label', '運算符號');
-        ['+','-','×','÷'].forEach(o => {
-          const opt = document.createElement('option');
-          opt.value = o; opt.textContent = o;
-          if(o === tk.v) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        sel.addEventListener('change', () => syncQuestion(idx));
-        expr.appendChild(sel);
+        if(editable){
+          const sel = document.createElement('select');
+          sel.className = 'tok optok';
+          sel.setAttribute('aria-label', '運算符號');
+          ['+','-','×','÷'].forEach(o => {
+            const opt = document.createElement('option');
+            opt.value = o; opt.textContent = o;
+            if(o === tk.v) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', () => syncQuestion(idx));
+          expr.appendChild(sel);
+        }else{
+          const sp = document.createElement('span');
+          sp.className = 'tok optok-static';
+          sp.textContent = tk.v;
+          expr.appendChild(sp);
+        }
       }else if(tk.t === 'blank'){
         const ansInp = document.createElement('input');
         ansInp.type = 'text';
@@ -3020,17 +3199,19 @@ function renderQuestions(){
         ansInp.value = q.userAnswer || '';
         ansInp.setAttribute('aria-label', '第 ' + (idx + 1) + ' 題空格答案');
         bindAnswerInput(ansInp);
-        ansInp.addEventListener('focus', () => {
-          toggleChip.textContent = '恢復數字';
-          toggleChip.style.display = 'inline-flex';
-          toggleChip.onmousedown = e => {
-            e.preventDefault();
-            toggleTokenBlankInQuestion(idx, tokIdx);
-          };
-        });
-        ansInp.addEventListener('blur', () => {
-          setTimeout(() => { toggleChip.style.display = 'none'; }, 120);
-        });
+        if(editable){
+          ansInp.addEventListener('focus', () => {
+            toggleChip.textContent = '恢復數字';
+            toggleChip.style.display = 'inline-flex';
+            toggleChip.onmousedown = e => {
+              e.preventDefault();
+              toggleTokenBlankInQuestion(idx, tokIdx);
+            };
+          });
+          ansInp.addEventListener('blur', () => {
+            setTimeout(() => { toggleChip.style.display = 'none'; }, 120);
+          });
+        }
         expr.appendChild(ansInp);
       }else{
         const sp = document.createElement('span');
@@ -3041,18 +3222,24 @@ function renderQuestions(){
     });
 
     const buildRhsEl = () => {
-      const rhsInp = document.createElement('input');
-      rhsInp.type = 'text';
-      rhsInp.inputMode = 'decimal';
-      rhsInp.className = 'numtok rhs-num';
-      rhsInp.value = q.rhs ?? '';
-      rhsInp.style.width = (Math.max(1, String(q.rhs ?? '').length) + 1.4) + 'ch';
-      rhsInp.setAttribute('aria-label', '等號另一側數值');
-      rhsInp.addEventListener('input', () => {
-        rhsInp.style.width = (Math.max(1, rhsInp.value.length) + 1.4) + 'ch';
-        syncQuestion(idx);
-      });
-      return rhsInp;
+      if(editable){
+        const rhsInp = document.createElement('input');
+        rhsInp.type = 'text';
+        rhsInp.inputMode = 'decimal';
+        rhsInp.className = 'numtok rhs-num';
+        rhsInp.value = q.rhs ?? '';
+        rhsInp.style.width = (Math.max(1, String(q.rhs ?? '').length) + 1.4) + 'ch';
+        rhsInp.setAttribute('aria-label', '等號另一側數值');
+        rhsInp.addEventListener('input', () => {
+          rhsInp.style.width = (Math.max(1, rhsInp.value.length) + 1.4) + 'ch';
+          syncQuestion(idx);
+        });
+        return rhsInp;
+      }
+      const sp = document.createElement('span');
+      sp.className = 'numtok-static rhs-num';
+      sp.textContent = q.rhs ?? '';
+      return sp;
     };
 
     const eq = document.createElement('span');
@@ -3080,7 +3267,9 @@ function renderQuestions(){
       inter.appendChild(ansInp);
     }
 
-    inter.appendChild(toggleChip);
+    if(editable){
+      inter.appendChild(toggleChip);
+    }
 
     const mark = document.createElement('span');
     mark.className = 'mark';
@@ -3280,7 +3469,6 @@ function cellsToNumber(cellArr){
   return Number.isFinite(n) ? cleanFloat(n) : null;
 }
 
-/* 逐欄回溯求解器（支援匿名空格 □ 與 A/B/C 重複字母數位及互異約束） */
 function solveVerticalPuzzle(vp, maxSolutions = 10, presetLetters = null){
   const isSingle = vp.layers === 1;
   const keys = getVpKeys(vp);
@@ -3945,7 +4133,6 @@ function formatVpSolKey(vp, key, val){
   return raw.padStart(vp.cells[key].length, '0');
 }
 
-/* 渲染單一「單層或雙層直式填空」網格（支援匿名空格、A/B/C 字母格、編輯模式與解答高亮模式） */
 function buildVerticalPuzzleGridHtml(vp, vpIdx, renderMode){
   const isSingle = vp.layers === 1;
   const divStyle = getDivStyle();
@@ -4119,7 +4306,6 @@ function buildVerticalPuzzleGridHtml(vp, vpIdx, renderMode){
     return row;
   }
 
-  /* ===== 單層直式（layers === 1：A op1 B = R） ===== */
   if(isSingle){
     const W = Math.max(vp.cells.A.length, vp.cells.B.length, vp.cells.R.length);
     const isDiv = vp.op1 === '÷';
@@ -4169,7 +4355,6 @@ function buildVerticalPuzzleGridHtml(vp, vpIdx, renderMode){
     return '<div class="vp-grid" style="--vp-cols:' + colTpl + '">' + items.join('') + '</div>';
   }
 
-  /* ===== 雙層直式（layers === 2） ===== */
   const useTopQuotientDiv = (vp.op1 === '÷') && (divStyle === 'long' || !allowBottomQ);
 
   if(useTopQuotientDiv){
@@ -4332,7 +4517,6 @@ function buildVpStatusHtml(vp){
   return '<div class="vp-status st-multi">🟠 多於一解（' + countLabel + '，作答符合任一組解均算對）</div>';
 }
 
-/* 建立字母答欄 HTML（含互動輸入框與列印底線） */
 function buildVpLetterBarHtml(vp, vpIdx){
   const letters = getVpLetters(vp);
   if(letters.length === 0) return '';
@@ -4356,7 +4540,6 @@ function buildVpLetterBarHtml(vp, vpIdx){
   return '<div class="vp-letter-bar">' + itemsHtml + '</div>';
 }
 
-/* 同步同一題內所有相同字母的填答值（包含直式格、鏡像格與下方答欄） */
 function syncLetterInputAcrossCard(vp, card, sym, ch){
   for(const k of getVpKeys(vp)){
     vp.cells[k].forEach((c, cidx) => {
@@ -4387,6 +4570,9 @@ function syncLetterInputAcrossCard(vp, card, sym, ch){
 
 function buildSingleVpCardEl(vp, vpIdx){
   const displayNum = questions.length + vpIdx + 1;
+  const editable = isGlobalEditMode();
+  if(!editable && vp.editMode) vp.editMode = false;
+
   const card = document.createElement('div');
   card.className = 'vp-card';
   card.dataset.vpidx = vpIdx;
@@ -4406,37 +4592,39 @@ function buildSingleVpCardEl(vp, vpIdx){
     '<span class="vp-badge">' + badgeText + '</span>';
   head.appendChild(title);
 
-  const tools = document.createElement('div');
-  tools.className = 'vp-card-tools no-print';
+  if(editable){
+    const tools = document.createElement('div');
+    tools.className = 'vp-card-tools no-print';
 
-  if(vp.editMode && letters.length > 0){
-    const distBtn = document.createElement('button');
-    distBtn.type = 'button';
-    const isDist = vp.distinctLetters !== false;
-    distBtn.className = 'vp-mini-btn' + (isDist ? ' active' : '');
-    distBtn.textContent = isDist ? 'A≠B 互異' : '允許同數';
-    distBtn.title = '切換不同字母是否必須代表不同數字';
-    distBtn.addEventListener('click', () => {
-      vp.distinctLetters = !isDist;
-      updateVpValidation(vp);
+    if(vp.editMode && letters.length > 0){
+      const distBtn = document.createElement('button');
+      distBtn.type = 'button';
+      const isDist = vp.distinctLetters !== false;
+      distBtn.className = 'vp-mini-btn' + (isDist ? ' active' : '');
+      distBtn.textContent = isDist ? 'A≠B 互異' : '允許同數';
+      distBtn.title = '切換不同字母是否必須代表不同數字';
+      distBtn.addEventListener('click', () => {
+        vp.distinctLetters = !isDist;
+        updateVpValidation(vp);
+        renderVerticalPuzzles();
+        const sheet = document.getElementById('answerSheet');
+        if(sheet && !sheet.classList.contains('hidden')) renderAnswers();
+      });
+      tools.appendChild(distBtn);
+    }
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'vp-mini-btn' + (vp.editMode ? ' active' : '');
+    editBtn.textContent = vp.editMode ? '✔ 完成編輯' : '✏️ 編輯題目';
+    editBtn.addEventListener('click', () => {
+      vp.editMode = !vp.editMode;
       renderVerticalPuzzles();
-      const sheet = document.getElementById('answerSheet');
-      if(sheet && !sheet.classList.contains('hidden')) renderAnswers();
     });
-    tools.appendChild(distBtn);
+    tools.appendChild(editBtn);
+
+    head.appendChild(tools);
   }
-
-  const editBtn = document.createElement('button');
-  editBtn.type = 'button';
-  editBtn.className = 'vp-mini-btn' + (vp.editMode ? ' active' : '');
-  editBtn.textContent = vp.editMode ? '✔ 完成編輯' : '✏️ 編輯題目';
-  editBtn.addEventListener('click', () => {
-    vp.editMode = !vp.editMode;
-    renderVerticalPuzzles();
-  });
-  tools.appendChild(editBtn);
-
-  head.appendChild(tools);
   card.appendChild(head);
 
   const diag = document.createElement('div');
@@ -4603,7 +4791,6 @@ function buildSingleVpCardEl(vp, vpIdx){
       });
     });
 
-    /* 下方字母答欄輸入與直式格子雙向同步 */
     const letterInps = Array.from(card.querySelectorAll('.vp-letter-ans-inp'));
     letterInps.forEach((linp, lIdx) => {
       linp.addEventListener('input', () => {
@@ -4671,7 +4858,7 @@ function renderVerticalPuzzles(){
 }
 
 /* =========================================================
-   5. 對答案 & 清空作答（支援橫式題目、匿名直式與 A/B/C 字母直式）
+   5. 對答案 & 清空作答
    ========================================================= */
 
 function checkAnswers(){
@@ -4683,7 +4870,6 @@ function checkAnswers(){
 
   let correct = 0, total = 0;
 
-  /* 1. 核對橫式題目 */
   questions.forEach((q, idx) => {
     const row = document.querySelector('.q[data-idx="' + idx + '"]');
     if(!row) return;
@@ -4727,7 +4913,6 @@ function checkAnswers(){
     }
   });
 
-  /* 2. 核對直式填空練習（單層、雙層與重複字母直式） */
   verticalPuzzles.forEach((vp, vpIdx) => {
     const card = document.querySelector('.vp-card[data-vpidx="' + vpIdx + '"]');
     if(!card) return;
@@ -5581,7 +5766,6 @@ function testVpCandidate(vp, state, targetItem, candidateDigit){
   return res.count > 0 || res.aborted;
 }
 
-/* 擬人化逐步推導引擎（支援匿名空格與重複字母一次解鎖全部同字母位置） */
 function generateVpTutorialSteps(vp){
   const info = vp.solveInfo;
   if(!info) return [];
@@ -5814,7 +5998,6 @@ function generateVpTutorialSteps(vp){
     return pos >= 0 ? arr[pos] : null;
   }
 
-  /* 解鎖單一格子；若該格屬於重複字母 sym，一次解鎖全題所有 sym 格並回傳全部目標格 */
   function revealItemAndSiblings(targetItem){
     if(!targetItem.sym){
       targetItem.known = true;
@@ -6420,7 +6603,6 @@ function normalizeDigits(str){
 
 function stripLinePrefix(rawLine){
   let s = normalizeDigits(rawLine).trim();
-  /* 僅剝離明確的行首題號（避免誤刪 1234:5 冒號除法、12.5 開頭小數、Q5 + Q 字母謎題或 (12) × 3 括號算式） */
   s = s.replace(/^\s*(?:第\s*\d+\s*題\s*[.:：、]?\s*|Q\s*\d+\s*[.:：、)]\s*|\d+\s*[)）、]\s*|\d+\.\s+(?![0-9A-Za-z?？□▢_＿])|(?:\(\s*\d+\s*\)|（\s*\d+\s*）)\s*(?![+\-×÷*/＋－−＊／·:：=＝]))/i, '');
   s = s.replace(/（/g, '(').replace(/）/g, ')');
   s = s.replace(/[–—－−]/g, '-');
@@ -6439,22 +6621,16 @@ function preprocessManualText(rawLine){
   return s.trim();
 }
 
-/* 將獨立乘號 x/X（夾在兩側數字/字母/括號之間且前後有空白者）正規化為 ×，其餘英文字母保留為待求數位 */
 function normalizeMultiplyXInVertical(str){
   return str.replace(/(?<=[0-9A-Za-z?？□▢_＿)])\s+[xX]\s+(?=[0-9A-Za-z?？□▢_＿(])/g, ' × ');
 }
 
-/* 判斷是否應轉為直式填空（包含數位內挖空，以及任何含 A-Z 字母的等式／分層題） */
 function isDigitBlankLine(rawLine){
   const s = stripLinePrefix(rawLine);
   if(!s) return false;
-  /* 數字或小數點緊鄰空格標記（如 2□5、□5、2□、12.□、□.4、2_5、2?5） */
   if(/(?:[0-9.][?？□▢_＿]|[?？□▢_＿][0-9.])/.test(s)) return true;
-  /* 連續多個方框或問號（如 □□ + 15 = 42） */
   if(/[?？□▢]{2,}/.test(s)) return true;
-  /* 顯式分層符號（; ； -> => → ⇒）配合空格或字母 */
   if(/(?:[;；]|->|=>|[→⇒])/.test(s) && /[A-Za-z?？□▢_＿]/.test(s)) return true;
-  /* 含英文字母（扣除獨立乘號 x/X 與中文詞彙後）-> 默認轉直式填空 */
   const sForLetters = normalizeMultiplyXInVertical(
     s.replace(/除以|除|乘以|乘|加上|加|減去|減|等於|多少|空格/g, ' ')
   );
@@ -6462,7 +6638,6 @@ function isDigitBlankLine(rawLine){
   return false;
 }
 
-/* 將單一數位／字母挖空字串（如 "2□5"、"ABA"、"2A5"、"12.B"）轉為 cell 陣列 */
 function parseDigitTokenToSpec(rawTok){
   const clean = normalizeDigits(rawTok).trim().replace(/[?？▢_＿]/g, '□').toUpperCase();
   if(!clean) return {err: '缺少數字'};
@@ -6531,7 +6706,6 @@ function alignDigitSpecToDec(spec, targetDec){
   return null;
 }
 
-/* 針對數位／字母挖空算式進行詞法拆解 */
 function tokenizeDigitBlankExpr(exprStr){
   let s = stripLinePrefix(exprStr);
   s = s.replace(/除以/g, ' ÷ ').replace(/除/g, ' ÷ ');
@@ -6634,7 +6808,6 @@ function getDistinctLettersOpt(){
   return cb ? cb.checked : true;
 }
 
-/* 驗證並完成數位／字母挖空直式題 */
 function finalizeDigitBlankPuzzle(vp, isImplicitM){
   vp.distinctLetters = getDistinctLettersOpt();
   const letters = getVpLetters(vp);
@@ -6738,11 +6911,9 @@ function finalizeDigitBlankPuzzle(vp, isImplicitM){
   };
 }
 
-/* 解析「數位／字母挖空」手動輸入行 */
 function analyzeDigitBlankLine(rawLine){
   const s = stripLinePrefix(rawLine);
 
-  /* 分支 1：顯式兩層分層語法 */
   if(/(?:[;；]|->|=>|[→⇒])/.test(s)){
     const parts = s.split(/\s*(?:[;；]|->|=>|[→⇒])\s*/).filter(Boolean);
     if(parts.length !== 2){
@@ -6752,7 +6923,7 @@ function analyzeDigitBlankLine(rawLine){
     const eq1 = parts[0].split(/[=＝]/);
     const eq2 = parts[1].split(/[=＝]/);
     if(eq1.length !== 2 || eq2.length !== 2){
-      return {status: 'error', blocked: true, message: '分層直式兩層皆須包含等號，例如：2A5 + 1B3 = 3A8 ; × 4 = 1C72'};
+      return {status: 'error', blocked: true, message: '分層直式兩層皆須包含等號，例如：2A5 + 1B3 = 3A8 ; × 4 = 1C12'};
     }
 
     const t1 = tokenizeDigitBlankExpr(eq1[0]);
@@ -6832,7 +7003,6 @@ function analyzeDigitBlankLine(rawLine){
     return finalizeDigitBlankPuzzle(vp, false);
   }
 
-  /* 分支 2：一般等號算式 */
   const eqParts = s.split(/[=＝]/);
   if(eqParts.length === 1){
     return {status: 'error', blocked: true, message: '直式填空／字母題請補上「= 結果」（例如：AB + A = BCC）。'};
@@ -6870,7 +7040,6 @@ function analyzeDigitBlankLine(rawLine){
     return {status: 'error', blocked: true, message: '直式填空最多支援兩層運算（3 個運算數 + 1 個結果）。'};
   }
 
-  /* 單層直式（1 個運算符） */
   if(totalOps === 1){
     const op1 = exprTree.op;
     const spA = parseDigitTokenToSpec(exprTree.l.dnum);
@@ -6908,7 +7077,6 @@ function analyzeDigitBlankLine(rawLine){
     return finalizeDigitBlankPuzzle(vp, false);
   }
 
-  /* 雙層直式（2 個運算符，方案 A：中間數 M 全部留空） */
   let op1, rawA, rawB, op2, rawC;
   if(exprTree.l && exprTree.l.op && exprTree.r && exprTree.r.dnum !== undefined){
     op1 = exprTree.l.op;
@@ -6969,7 +7137,6 @@ function analyzeDigitBlankLine(rawLine){
   return finalizeDigitBlankPuzzle(vp, true);
 }
 
-/* 橫式項目級詞法分析 */
 function tokenizeMathPart(rawStr){
   const str = preprocessManualText(rawStr);
   const tokens = [];
@@ -7039,12 +7206,10 @@ function analyzeManualLine(rawLine){
     return {status: 'empty', message: '', question: null, vp: null};
   }
 
-  /* 1. 偵測到「數位內挖空」或「A-Z 重複字母等式」-> 默認轉直式填空 */
   if(isDigitBlankLine(rawLine)){
     return analyzeDigitBlankLine(rawLine);
   }
 
-  /* 2. 一般計算題或橫式項目填空題 */
   const preprocessed = preprocessManualText(rawLine);
   if(!preprocessed){
     return {status: 'empty', message: '', question: null, vp: null};
@@ -7524,6 +7689,8 @@ function downloadPrintableHtml(){
   preparePrintContent();
   const styles = document.querySelector('style').textContent;
   const printHeaderHtml = document.querySelector('.print-header').outerHTML;
+  const qScale = Number(document.getElementById('qFontScale')?.value) || 1;
+  const scaleAttr = ' style="--q-scale:' + qScale + '"';
 
   let qListHtml = '';
   questions.forEach((q, idx) => {
@@ -7540,7 +7707,7 @@ function downloadPrintableHtml(){
         inp.removeAttribute('placeholder');
       }
     });
-    vpHtml = '<section id="vpSection"><div class="vp-section-title">🧩 直式填空練習</div>' + vpInner.innerHTML + '</section>';
+    vpHtml = '<section id="vpSection"' + scaleAttr + '><div class="vp-section-title">🧩 直式填空練習</div>' + vpInner.innerHTML + '</section>';
   }
   const answersClone = document.getElementById('answers').cloneNode(true);
   answersClone.querySelectorAll('.no-print, .vp-tut-tip').forEach(el => el.remove());
@@ -7552,13 +7719,13 @@ function downloadPrintableHtml(){
     '<head>',
     '<meta charset="UTF-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-    '<title>四則運算練習紙（含雙欄直式答案）</title>',
+    '<title>四則運算練習紙</title>',
     '<style>',
     styles,
     'body{background:#fff;max-width:860px;padding:18px;margin:0 auto;}',
     '.print-header{display:block;}',
     '.q{border:none;box-shadow:none;padding:8px 0;margin:0;border-bottom:1px dotted #e2e8f0;}',
-    '.q-printable{display:block;font-size:1.15rem;}',
+    '#questions .q-printable{display:block;font-size:calc(1.15rem * var(--q-scale, 1));}',
     '.vp-pair{display:table;width:100%;table-layout:fixed;border-collapse:separate;border-spacing:10px 0;margin-bottom:10px;}',
     '.vp-card{display:table-cell;width:50%;vertical-align:top;box-shadow:none;border:1px solid #94a3b8;}',
     '.vp-card.spacer{border:none;}',
@@ -7568,8 +7735,8 @@ function downloadPrintableHtml(){
     '.vp-letter-item{color:#000;}',
     '.vp-letter-print-line{display:inline-block;min-width:2.4em;border-bottom:1.5px solid #000;text-align:center;color:#000;}',
     '.vp-mirror-box{background:#fff;border:1.4px dashed #000;border-radius:3px;color:#000;}',
-    '.vp-chain .vp-grid{font-size:1rem;}',
-    '#answerSheet{display:block;border:none;box-shadow:none;padding:16px 0 0;margin-top:22px;border-top:2px solid #334155;}',
+    '#vpSection .vp-chain .vp-grid{font-size:calc(1rem * var(--q-scale, 1));}',
+    '#answerSheet{--q-scale:1;display:block;border:none;box-shadow:none;padding:16px 0 0;margin-top:22px;border-top:2px solid #334155;}',
     '.export-bar{display:flex;gap:10px;justify-content:flex-end;margin-bottom:14px;}',
     '@media print{.export-bar{display:none !important;}}',
     '</style>',
@@ -7577,7 +7744,7 @@ function downloadPrintableHtml(){
     '<body>',
     '<div class="export-bar"><button onclick="window.print()">🖨 列印本頁</button></div>',
     printHeaderHtml,
-    qListHtml ? ('<main id="questions">' + qListHtml + '</main>') : '',
+    qListHtml ? ('<main id="questions"' + scaleAttr + '>' + qListHtml + '</main>') : '',
     vpHtml,
     '<section id="answerSheet"><h2>答案及港式直式計算</h2><div id="answers">', answersHtml, '</div></section>',
     '</body>',
@@ -7601,7 +7768,7 @@ function downloadPrintableHtml(){
 }
 
 /* =========================================================
-   10. 運算符號開關狀態與主控流程（支援上部橫式題數設為 0）
+   10. 運算符號開關狀態與主控流程
    ========================================================= */
 
 function getAllowedOps(){
@@ -7726,6 +7893,22 @@ function generate(){
 }
 
 function init(){
+  /* 讀取並套用題目字體大小設定（答案頁維持固定大小） */
+  const fontSel = document.getElementById('qFontScale');
+  if(fontSel){
+    try{
+      const savedScale = localStorage.getItem('arith_q_font_scale');
+      if(savedScale && Array.from(fontSel.options).some(o => o.value === savedScale)){
+        fontSel.value = savedScale;
+      }
+    }catch(e){}
+    applyQuestionFontScale(fontSel.value);
+    fontSel.addEventListener('change', () => {
+      applyQuestionFontScale(fontSel.value);
+      try{ localStorage.setItem('arith_q_font_scale', fontSel.value); }catch(e){}
+    });
+  }
+
   document.querySelectorAll('.op-filter').forEach(cb => {
     cb.addEventListener('change', () => {
       if(getAllowedOps().length === 0){
@@ -7737,7 +7920,7 @@ function init(){
     });
   });
 
-  document.getElementById('qCount').addEventListener('input', refreshOpUI);
+  document.getElementById('qCount').addEventListener('change', refreshOpUI);
   document.getElementById('useDecimal').addEventListener('change', refreshOpUI);
   document.getElementById('decCount').addEventListener('change', () => {
     const decCb = document.getElementById('useDecimal');
@@ -7762,6 +7945,19 @@ function init(){
     if(!vpCb.checked) vpCb.checked = true;
     refreshOpUI();
     regenerateVerticalPuzzlesOnly();
+  });
+
+  /* 切換全局「✏️ 編輯」模式（預設關閉） */
+  document.getElementById('editModeToggle').addEventListener('change', e => {
+    const editing = e.target.checked;
+    if(!editing){
+      verticalPuzzles.forEach(vp => { vp.editMode = false; });
+    }
+    renderQuestions();
+    renderVerticalPuzzles();
+    if(editing){
+      showNotice('已開啟編輯模式：可直接修改數字、切換運算符號或將數字設為空格');
+    }
   });
 
   document.getElementById('showVpTutorial').addEventListener('change', e => {
@@ -7817,7 +8013,6 @@ function init(){
   window.addEventListener('beforeprint', preparePrintContent);
   window.addEventListener('afterprint', restorePlaceholdersAfterPrint);
 
-  /* 手動輸入區：一鍵數學符號與字母鍵盤列（防止失焦收起手機鍵盤） */
   document.querySelectorAll('.math-keypad .sym-btn').forEach(btn => {
     const handleTap = (e) => {
       e.preventDefault();
